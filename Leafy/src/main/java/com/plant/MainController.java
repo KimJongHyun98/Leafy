@@ -30,18 +30,24 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.plant.dto.ComparisonDTO;
 import com.plant.dto.FBCommentDTO;
+import com.plant.dto.FBFileDTO;
 import com.plant.dto.FBoardDTO;
 import com.plant.dto.MemberDTO;
 import com.plant.dto.NoticeDTO;
+import com.plant.dto.PBCommentDTO;
+import com.plant.dto.PBFileDTO;
+import com.plant.dto.PBoardDTO;
 import com.plant.dto.PCBoardDTO;
 import com.plant.dto.PaggingVO;
 import com.plant.dto.ReviewDTO;
 import com.plant.dto.TBoardDTO;
 import com.plant.service.FBoardService;
 import com.plant.service.LoginService;
+import com.plant.service.MemberService;
 import com.plant.service.NoticeService;
 import com.plant.service.PCBoardService;
 import com.plant.service.TBoardService;
+import com.plant.service.PBoardService;
 
 @Controller
 public class MainController { // 메인컨트롤러
@@ -544,148 +550,202 @@ public class MainController { // 메인컨트롤러
 	@RequestMapping("photoBoardDelete.do")
 	public String photoBoardDelete(HttpServletRequest request) {
 		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
-		pBoardService.deletePBoard(pb_no);
+		PBoardService.deletePBoard(pb_no);
 		return "redirect:photoBoardList.do";
 	}
 	
 	// 안태진님 기능 부분(가격비교 게시판 / 회사소개)
-	// 가격정보 서치 페이지 10/20
-	@RequestMapping("price_search.do")
-	public String search(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String search = request.getParameter("search");//페이지input 항목 가져오기
-		response.setContentType("text/html;charset=utf-8");
-		ArrayList<ComparisonDTO> searchList = new ArrayList<>();
-		searchList = searchApi(search);
-		System.out.println(searchList);
-		request.setAttribute("searchList", searchList);//api이용한 가격정보 request저장
-		return "price_comparison";
-	}
-	
-	// 리뷰정보 보기기능 10/20
-	@RequestMapping(value = "seeMore.do")
-	public String seeMore(HttpServletRequest request, HttpServletResponse response) {
-		String link = request.getParameter("link");
-		System.out.println(link);
-		ArrayList<ReviewDTO> reviewList = new ArrayList<>();
-		reviewList = seeMoreReview(link);//크롤링으로 가져온 링크의 리뷰정보 저장
-		request.setAttribute("reviewList", reviewList);//리뷰정보리스트 리퀘스트에 저장
-		return "price_comparison";
-	}
+	// 21/10/21 안태진
+			//가격정보 서치 페이지
+			@RequestMapping("price_search.do")
+			public String search(HttpServletRequest request, HttpServletResponse response) throws IOException {
+				//search 폼에서 가져온 search 파라미터
+				String search = request.getParameter("search");
+				//폼에서 가져온 정렬기준
+				String sort = request.getParameter("sort");
+				response.setContentType("text/html;charset=utf-8");
+				//가격정보를 dto로 변환하여 리스트로 저장
+				ArrayList<ComparisonDTO> searchList = new ArrayList<ComparisonDTO>();     
+				searchList = searchApi(search, sort);
+				//request에 searchList 저장
+				request.setAttribute("searchList", searchList);
+				return "price_comparison";
+			}
+			//더보기 옵션
+			@RequestMapping(value = "seeMore.do")
+			public String seeMore(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+				//ajax로 받아온 링크 객체에 저장
+				String link = request.getParameter("link");
+				//링크 확인용
+				System.out.println(link);
+				//리뷰 정보 저장할 jsonarray 선언
+				JSONArray reviewList = new JSONArray();
+				reviewList = seeMoreReview(link);
+				//에러코드와 조회 성공 코드 설정 및 jsonobject에 저장
+				JSONObject obj = new JSONObject();
+				if(reviewList.length() != 0) {
+					obj.put("code", 200); // 검색 실패시, 코드 200
+					obj.put("responseMessage", "조회가 정상적으로 진행되었습니다.");
+					obj.put("reviewList", reviewList);
+				} else {
+					obj.put("code", 500); // 검색 성공시, 코드 200
+					obj.put("responseMessage", "조회 결과가 없습니다.");
+				}
+				response.setContentType("text/html;charset=utf-8");
+				response.getWriter().write(obj.toString());
+				return null;
+			}
+			//셀레니움 기본 접속 설정
+			public static final String WEB_DRIVER_ID = "webdriver.chrome.driver"; 
+			public static final String WEB_DRIVER_PATH = "/Users/taejin-an/Downloads/chromedriver";
+			//리뷰정보를 가져오는 크롤링 메서드
+			private JSONArray seeMoreReview(String link) throws JSONException{
+				try {
+					System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				//셀레니움 옵션 설정
+				ChromeOptions options = new ChromeOptions();
+				//브라우저 숨기기
+				options.addArguments("headless");
 
-	// 링크정보를 통해 크롤링해서 리뷰정보 가져오는 메서드 - 10/22 resource/driver 폴더에 드라이버 다운로드 후 추가, 경로 재설정 
-	public static final String WEB_DRIVER_ID = "webdriver.chrome.driver";
-	public static final String WEB_DRIVER_PATH = "/resource/driver/chromedriver";
-	
-	private ArrayList<ReviewDTO> seeMoreReview(String link){
-		try {
-			System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//셀레니움 기본설정
-		ChromeOptions options = new ChromeOptions();
-		options.addArguments("headless");
+				WebDriver driver = new ChromeDriver(options);
+				String url = link;
+				driver.get(url);
+				//현재 셀레니움 브라우저에 접속되어 있는 URL 정보 가져오기
+				String current_url = driver.getCurrentUrl();
+				//정보확인
+				System.out.println(current_url);
+				//자바 컴파일 속도가 브라우저 로딩속도 보다 빠르기때문에 타임슬립 5초 처리
+				try {Thread.sleep(5000);} catch (InterruptedException e) {e.printStackTrace();}
+				//리뷰의 각정보들을 dto에 저장하는 로직
+				List<WebElement> contentList;
+				List<WebElement> reviewIdList;
+				List<WebElement> reviewDateList;
+				List<WebElement> reviewSelectList;
+				List<WebElement> reviewScoreList;
+				//쇼핑몰의 사이트가 스마트스토어와 일반쇼핑몰을 URL로 구분하여 리스트로 변환 하는 로직
+				if(current_url.contains("smartstore")) {
+					contentList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list .YEtwtZFLDz ._3QDEeS6NLn"));
+					reviewIdList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2FmJXrTVEX > strong"));
+					reviewDateList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2FmJXrTVEX > span"));
+					reviewSelectList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._3jZQShkMWY > span"));
+					reviewScoreList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2V6vMO_iLm > em"));
+				} else {
+					contentList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._3AGQlpCnyu ._2Xe0HVhCew"));
+					reviewIdList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2DSGiSauFJ > strong"));
+					reviewDateList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2DSGiSauFJ > span"));
+					reviewSelectList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._31mfFx_-xd ._2Xe0HVhCew"));
+					reviewScoreList = (List<WebElement>) driver.findElements(By.cssSelector(".review_list ._2V6vMO_iLm ._15NU42F3kT"));
+					
+				}
+				
+				System.out.println(contentList.size());
+				System.out.println(reviewIdList.size());
+				System.out.println(reviewDateList.size());
+				System.out.println(reviewSelectList.size());
+				System.out.println(reviewScoreList.size());
+				//올바르게 정보가 저장이 되었는지 확인하는 반복문(리뷰내용)
+				for (Iterator iterator = contentList.iterator(); iterator.hasNext();) {
+					WebElement webElement = (WebElement) iterator.next();
+					System.out.println(webElement.getText()+"\n");
+					System.out.println("--------------------");
+					
+				}
+				ArrayList<ReviewDTO> reviewList = new ArrayList<ReviewDTO>();
+				
+				//reviewdto에 각정보 저장
+				for(int i = 0; i < contentList.size(); i++) {
+					reviewList.add(new ReviewDTO(reviewScoreList.get(i).getText(), reviewSelectList.get(i).getText(), contentList.get(i).getText(), reviewIdList.get(i).getText(), reviewDateList.get(i).getText()));
+				}
+				//list객체가 있는지 없는지 체크하는 sysout
+				System.out.println(reviewList.size());
+				JSONArray review_arr = new JSONArray();
+				//리턴해줄 json파일 세팅
+				for(int i = 0; i < reviewList.size(); i++) {
+					JSONObject obj = new JSONObject();
+					obj.put("score", reviewList.get(i).getScore());
+					obj.put("reviewContent", reviewList.get(i).getReviewContent());
+					obj.put("selectProduct", reviewList.get(i).getSelectProduct());
+					obj.put("id", reviewList.get(i).getId());
+					obj.put("reviewDate", reviewList.get(i).getReviewDate());
+					review_arr.put(obj);
+				}
+				//driver close
+				driver.close();
+				driver.quit();
 
-		WebDriver driver = new ChromeDriver(options);
+				return review_arr; 
+			}
 
-		String url = link;//hidden input에서 가져온 링크값
-		driver.get(url);
-		//컴파일속도가 페이지 로딩속도보다 빠르기때문에 타임슬립걸어서 페이지가 로딩이다되면 탐색하게끔 설정
-		try {Thread.sleep(5000);} catch (InterruptedException e) {e.printStackTrace();}
-		//선택자이용하여 내용추출해서 각 리스트에 저장
-		List<WebElement> contentList = driver.findElements(By.cssSelector(".YEtwtZFLDz > span"));
-		List<WebElement> reviewIdList = driver.findElements(By.cssSelector("._2FmJXrTVEX > strong"));
-		List<WebElement> reviewDateList = driver.findElements(By.cssSelector("._2FmJXrTVEX ._3QDEeS6NLn"));
-		List<WebElement> reviewSelectList = driver.findElements(By.cssSelector("._3jZQShkMWY > span"));
-		List<WebElement> reviewScoreList = driver.findElements(By.cssSelector("._2V6vMO_iLm > em"));
-		System.out.println(contentList.size());
-		for (Iterator iterator = contentList.iterator(); iterator.hasNext();) {
-			WebElement webElement = (WebElement) iterator.next();
-			System.out.println(webElement.getText());
+			JSONArray arr;
+			//검색 api 로직
+			private ArrayList<ComparisonDTO> searchApi(String search, String sort) {
+				String clientId = "_AVjSGJMXRyTaweIE3l0";//애플리케이션 클라이언트 아이디값";
+		        String clientSecret = "hX5FHl3vY6";//애플리케이션 클라이언트 시크릿값";
+		        ArrayList<ComparisonDTO> list = new ArrayList<ComparisonDTO>();
+		        String msg = null;
+		        HttpURLConnection con = null;
+		        BufferedReader br = null;
+		        String result = "";
+		        String text = search;
+		        try {
+		            text = URLEncoder.encode(text, "UTF-8");
+		            sort = URLEncoder.encode(sort, "UTF-8");
 
-		}
-		//review 정보를 하나의 dto로변환하여 하나의 리스트로 저장
-		ArrayList<ReviewDTO> reviewList = new ArrayList<>();
-		for(int i = 0; i < contentList.size(); i++) {
-			reviewList.add(new ReviewDTO(reviewScoreList.get(i).getText(), reviewSelectList.get(i).getText(), contentList.get(i).getText(), reviewIdList.get(i).getText(), reviewDateList.get(i).getText()));
-		}
-		System.out.println("----------");
-		System.out.println(reviewList.toString());
-		System.out.println("----------");
-		System.out.println(contentList.toString());
 
-		driver.close();
-		driver.quit();
+		            URL url = new URL("https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=100&sort=" + sort);
+		            con = (HttpURLConnection) url.openConnection();
+		            con.setRequestMethod("GET");
+		            con.setRequestProperty("X-Naver-Client-Id", clientId);
+		            con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
 
-		return reviewList;
-	}
-	
-	// 네이버 쇼핑 api 10/20
-	JSONArray arr;
-	private ArrayList<ComparisonDTO> searchApi(String search) {
-		String clientId = "_AVjSGJMXRyTaweIE3l0";//애플리케이션 클라이언트 아이디값";
-        String clientSecret = "hX5FHl3vY6";//애플리케이션 클라이언트 시크릿값";
-        ArrayList<ComparisonDTO> list = new ArrayList<>();
-        String msg = null;
-        HttpURLConnection con = null;
-        BufferedReader br = null;
-        String result = "";
-        String text = search;
-        try {
-            text = URLEncoder.encode(text, "UTF-8");
+		            int responseCode = con.getResponseCode();
+		            if (responseCode == HttpURLConnection.HTTP_OK) {
+		                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		            } else {
+		                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+		            }
+		            msg = new String();
+		            while (true) {
+		                String str = br.readLine();
+		                if (str == null) break;
+		                msg += str;
+		            }
+		            System.out.println(text + "doInBackground: " + msg);
+		            JSONObject json = new JSONObject(msg);
+		            arr = json.getJSONArray("items");
+		            for (int i = 0; i < arr.length(); i++) {
+		                JSONObject temp = (JSONObject) arr.get(i);
+		                if(temp.getString("category2").equals("원예/식물") && !(temp.getString("category3").equals("조화"))) {
+		                	list.add(new ComparisonDTO(temp.getString("title"), temp.getString("link"), temp.getString("image"), temp.getString("lprice"), temp.getString("hprice"),
+		                			temp.getString("mallName"), temp.getInt("productType"), temp.getString("maker"), temp.getString("category1"), temp.getString("category1"),
+		                			temp.getString("category2"), temp.getString("category3"), temp.getString("category4")));
+		                	result += temp.getString("title") +
+		                			" " + temp.getString("link") + " " +
+		                			temp.getString("lprice") + " " + temp.getString("image") + "\n";
+		                }
+		            }
+		            System.out.println("test" + "doInBackground: " + result);
+		            System.out.println(result.getClass().getName());
+		            System.out.println(arr.toString());
+		            System.out.println(list.toString());
 
-            URL url = new URL("https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=100");
-            con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("X-Naver-Client-Id", clientId);
-            con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+		        } catch (UnsupportedEncodingException e) {
+		            throw new RuntimeException("인코딩 실패", e);
+		        } catch (MalformedURLException e) {
+		            e.printStackTrace();
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } catch (JSONException e) {
+		            e.printStackTrace();
+		        } finally {
 
-            int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            } else {
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            }
-            msg = new String();
-            while (true) {
-                String str = br.readLine();
-                if (str == null) break;
-                msg += str;
-            }
-            System.out.println(text + "doInBackground: " + msg);
-            JSONObject json = new JSONObject(msg);
-            arr = json.getJSONArray("items");
-            //api에서 가져올수있는 모든 정보를 list에저장
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject temp = (JSONObject) arr.get(i);
-                if(temp.getString("category2").equals("원예/식물") && !(temp.getString("category3").equals("조화"))) {
-                	list.add(new ComparisonDTO(temp.getString("title"), temp.getString("link"), temp.getString("image"), temp.getString("lprice"), temp.getString("hprice"),
-                			temp.getString("mallName"), temp.getInt("productType"), temp.getString("maker"), temp.getString("category1"), temp.getString("category1"),
-                			temp.getString("category2"), temp.getString("category3"), temp.getString("category4")));
-                	result += temp.getString("title") +
-                			" " + temp.getString("link") + " " +
-                			temp.getString("lprice") + " " + temp.getString("image") + "\n";
-                }
-            }
-            System.out.println("test" + "doInBackground: " + result);
-            System.out.println(result.getClass().getName());
-            System.out.println(arr.toString());
-            System.out.println(list.toString());
+		        }
 
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("인코딩 실패", e);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-
-        }
-
-        return list;
-	}
+		        return list;
+			}
 	
 	// 김종현님 기능 부분(인덱스-로그인 / 회원가입)
 	// 네이버 로그인 페이지 이동 10/22
