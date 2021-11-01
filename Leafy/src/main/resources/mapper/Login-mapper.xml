@@ -3,8 +3,14 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  <mapper namespace="com.plant.mapper.LoginMapper">
- 	<select id="LoginMember">
- 		select * from member where id = ? and passwd = ?
 
+ 	<select id="Login" parameterType="map" resultType="member">
+ 		select * from member where id = #{id} and password = #{passwd}
  	</select> 
+ 	
+ 	<insert id="insertMember" parameterType="member">
+ 		insert into member(id,password,nickname,name,pno,gender,address,phone,email,recommand_bno,phone_confirm)
+ 		values(#{id},#{passwd},#{nickname},#{name},#{pno},#{gender},#{address},#{phone},#{email},#{recommand_bno},#{phone_confirm})
+ 	</insert>
+
  </mapper>

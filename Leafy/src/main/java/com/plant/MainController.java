@@ -71,8 +71,9 @@ public class MainController { // 메인컨트롤러
 	private PCBoardService pcBoardService;
 	private NoticeService noticeService;
 	private MTMRequestService mtmRequestService;
+	private LoginService loginService;
 
-	public MainController(MemberService memberService,FBoardService fBoardService,PBoardService pBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService, MTMRequestService mtmRequestService) {
+	public MainController(MemberService memberService,FBoardService fBoardService,PBoardService pBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService, MTMRequestService mtmRequestService, LoginService loginService) {
 		super();
 		this.memberService = memberService;
 		this.fBoardService = fBoardService;
@@ -81,6 +82,7 @@ public class MainController { // 메인컨트롤러
 		this.pcBoardService = pcBoardService;
 		this.noticeService = noticeService;
 		this.mtmRequestService = mtmRequestService;
+		this.loginService = loginService;
 	}
 
 	// 오형석 기능 부분(자유게시판 / 포토게시판)
@@ -796,7 +798,7 @@ public class MainController { // 메인컨트롤러
 	
 	//메인 페이지 이동 10/25
 	@RequestMapping("Maingo.do")
-	public String MainView() {
+	public String MainView(HttpServletRequest request, HttpSession httpSession) {
 		return "main/main";
 	}
 	// 안세영님 기능 부분(팁 게시판 / 고객센터 - 공지사항,문의)
@@ -1253,11 +1255,39 @@ public class MainController { // 메인컨트롤러
 	
 	
 	@RequestMapping("Login.do")
-	public String login(HttpServletRequest request) {
-		List<MemberDTO> list = login.LoginupService();
-		request.setAttribute(WEB_DRIVER_ID, list);
-		return null;
+	public String Login(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		String id = request.getParameter("id");
+		String passwd = request.getParameter("passwd");
+							
+	    MemberDTO dto = loginService.Login(id, passwd);
+
+		if (dto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('아이디 비밀번호 확인하세요'); history.back();</script>");
+			return null;
+		} else {
+			request.getSession().setAttribute("client", dto);
+			return MainView(request,request.getSession());
+		}
+		
 	}
+	
+	@RequestMapping("memverRegister.do")
+	public String joingo(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		String id = request.getParameter("id");
+		String passwd = request.getParameter("passwd");
+		String nickname = request.getParameter("nickname");
+		String name = request.getParameter("name");
+		String pno = request.getParameter("pno1")+request.getParameter("pno2");//주민번호 합치기 
+		int gender = Integer.parseInt(request.getParameter("gender"));
+		String address = request.getParameter("address")+request.getParameter("address_2");
+		String phone =request.getParameter("pon_1")+request.getParameter("pon_2")+request.getParameter("pon_3");//폰번호 합치기
+		String email = request.getParameter("E_mail_1")+"@"+request.getParameter("E_mail_2");				
+		MemberDTO dto = new MemberDTO(id, passwd, nickname, name, pno,0, address, phone, email,0,0);
+		loginService.insertMember(dto);
+		request.getSession().setAttribute("client", dto);			
+			return index();
+		}
 	
 	
 	

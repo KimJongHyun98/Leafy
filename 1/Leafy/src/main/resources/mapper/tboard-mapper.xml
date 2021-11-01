@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.plant.mapper.TBoardMapper">
+	<select id="selectALlTBoard" parameterType="int" resultType="tBoard">
+		select * from (select tb.*, ceil(rownum/5) as pageno from
+		(select * from tip_board order by tb_no desc) tb)
+		where pageno = #{pageno}
+	</select>
+<!-- 	<select id="selectTipCount" resultType="int">
+		select count(*) from tip_board
+	</select>
+	<select id="selectTBoard" parameterType="map" resultType="tBoard">
+		select * from tip_board where 
+		<choose>
+			<when test="kind.equals('title')">
+				tb_title like '%' || #{search} || '%'
+			</when>
+			<when test="kind.equals('title_content')">
+				tb_title like '%' || #{search} || '%' 
+				and tb_content like '%' || #{search} || '%'
+			</when>
+			<otherwise>
+				id like '%' || #{search} || '%'
+			</otherwise>
+		</choose>
+		order by tb_no desc
+	</select> -->
+</mapper>

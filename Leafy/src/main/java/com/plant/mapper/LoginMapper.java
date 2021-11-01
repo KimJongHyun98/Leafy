@@ -10,4 +10,5 @@ import com.plant.dto.MemberDTO;
 @Mapper
 public interface LoginMapper {
 	ArrayList<MemberDTO> LogonAllpage();
+	int insertMember(MemberDTO dto);
 }

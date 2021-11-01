@@ -1,6 +1,7 @@
 package com.plant.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -13,16 +14,19 @@ public class LoginService {//로그인서비스
 	private LoginMapper loginmapper;
 	
 	public LoginService(LoginMapper loginmapper) {
+		super();
 		this.loginmapper = loginmapper;
 	}
 	
-	public ArrayList<MemberDTO> LoginupService(){
-		return loginmapper.LogonAllpage();
+	public MemberDTO Login(String id,String passwd) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("id", id);
+		map.put("passwd", passwd);
+		return loginmapper.Login(map);
 	}
 
-
-
+	public int insertMember(MemberDTO dto) {
+		return loginmapper.insertMember(dto);	
+	}
 	
-	
-
 }
