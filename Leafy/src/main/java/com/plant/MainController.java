@@ -725,65 +725,436 @@ public class MainController { // 메인컨트롤러
 		return "main/main";
 	}
 	// 안세영님 기능 부분(팁 게시판 / 고객센터 - 공지사항,문의)
-	// TIP 게시판 출력 10/22
-	@RequestMapping("TipBoardList.do")
-	public String TipBoardList(HttpServletRequest request, HttpSession session) {
-//		String pageNo = request.getParameter("pageNo");
-//		int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
+	
+	// TIP 게시판 (썸네일 이미지 보이기 / 좋아요수, 댓글수 ,조회수 처리)
+	// TIP 게시판 출력
+	@RequestMapping("tipList.do")
+	public String tipList(HttpServletRequest request, HttpSession session) {
+		String pageNo = request.getParameter("pageNo");
+		int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
 
-		ArrayList<TBoardDTO> list = tBoardService.selectAllTBoard(1);
-		request.setAttribute("list", list);
-		
-		//게시글 개수
-//		int count = tBoardService.selectTBoardCount();
-//		PaggingVO vo = new PaggingVO(count, currentPageNo, 5, 5);
-//		request.setAttribute("pagging", vo);
+		ArrayList<TBoardDTO> tblist = tBoardService.selectAllTip(currentPageNo);
+		request.setAttribute("tblist", tblist);
+
+		// 페이징 처리
+		int count = tBoardService.selectTipBoardCount();
+		PaggingVO vo = new PaggingVO(count, currentPageNo, 5, 5);
+		request.setAttribute("pagging", vo);
 
 		return "board/tb/tip_list";
 	}
-	// 팁 게시판 검색 10/22
-//		@RequestMapping("TipBoardSearch.do")
-//		public String freeBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
-//			String kind = request.getParameter("kind");
-//			String search = request.getParameter("search");
-//			
-//			List<TBoardDTO> list = tBoardService.selectTBoard(kind, search);
-//			JSONArray arr = new JSONArray();
-//			for(int i=0;i<list.size();i++) {
-//				JSONObject temp = new JSONObject();
-//				temp.put("tb_no", list.get(i).getTb_no());
-//				temp.put("tb_addfile_url", list.get(i).getTb_addfile_url());
-//				temp.put("tb_title", list.get(i).getTb_title());
-//				temp.put("tb_content", list.get(i).getTb_content());
-//				temp.put("id", list.get(i).getId());
-//				temp.put("tb_visit", list.get(i).getTb_visit());
-//				temp.put("tb_recommand", list.get(i).getTb_recommand());
-//				temp.put("tb_comment", list.get(i).getTb_comment());
-//				temp.put("tb_date", list.get(i).getTb_date());
-//				
-//				arr.put(temp);
-//			}
-//			JSONObject obj = new JSONObject();
-//			if(list.size() != 0) {
-//				obj.put("code", 200); // 검색 성공시, 코드 200
-//				obj.put("responseMessage", "조회가 정상적으로 진행되었습니다.");
-//				obj.put("result", arr);
-//			} else {
-//				obj.put("code", 500); // 검색 실패시, 코드 500
-//				obj.put("responseMessage", "조회 결과가 없습니다.");
-//			}
-//			response.setContentType("text/html;charset=utf-8");
-//			response.getWriter().write(obj.toString());
-//			
-//			return null;
-//		}
+	// 팁 게시판 검색
+		@RequestMapping("tipBoardSearch.do")
+		public String freeBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+			String kind = request.getParameter("kind");
+			System.out.println(kind);
+			String search = request.getParameter("search");
+			String pageNo = request.getParameter("pageNo");
+			int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
+
+			List<TBoardDTO> tbList = tBoardService.selectTBoard(kind, search, currentPageNo);
+			request.setAttribute("tbList", tbList);
+			System.out.println(tbList.toString());
+
+			int count = tBoardService.selectTipBoardSearchCount(kind, search);
+			PaggingVO vo = new PaggingVO(count, currentPageNo, 10, 5);
+			request.setAttribute("kind", kind);
+			request.setAttribute("search", search);
+			request.setAttribute("count", count);
+			request.setAttribute("pagging", vo);
+			
+			return "board/tb/tip_list";
+		}
+		
+		// 팁 게시판 상세 페이지
+		@RequestMapping("tipBoardView.do")
+		public String freeBoardView(HttpServletRequest request, HttpSession session) {
+			int tno = Integer.parseInt(request.getParameter("tno"));
+			tBoardService.addTipBoardCount(tno);
+			TBoardDTO dto = tBoardService.selectTipBoardContent(tno);
+			request.setAttribute("tBoard", dto);
+			
+			List<TBCommentDTO> tclist = tBoardService.selectTipBoardComment(tno);
+			request.setAttribute("tclist", tclist);
+			System.out.println(tclist);
+			
+			return "board/tb/tip_view";
+		}
+		
+		// 팁 게시판 추천
+		@RequestMapping("tipRecommand.do")
+		public String tipRecommand(HttpServletRequest request, HttpServletResponse response) throws IOException, JSONException {
+			int tno = Integer.parseInt(request.getParameter("tno"));
+			MemberDTO dto = (MemberDTO) request.getSession().getAttribute("client");
+			response.setContentType("text/html;charset=utf-8");
+			JSONObject obj = new JSONObject();
+			if(dto == null) {
+				obj.put("msg", "로그인후 이용해주세요.");
+				obj.put("code", 400);
+				response.getWriter().write(obj.toString());
+				return null;
+			}
+			boolean result = tBoardService.insertTipRecommand(tno, dto.getId());
+			String msg = result ? "게시글을 추천했습니다." : "추천을 취소했습니다.";
+			obj.put("msg",msg);
+			obj.put("code",200);
+			response.getWriter().write(obj.toString());
+
+			return null;
+		}
+		
+		// 팁 게시판 댓글 입력
 	
-	//공지사항 게시판 출력 10/22
+//------------------------------------------------------------------------------
+
+	// 21.10.22 세영 (공지사항 게시판 어드민만 글작성 및 수정,삭제가능/댓글x/조회수만처리하기)
+	// 공지사항 게시판 출력
 	@RequestMapping("NoticeList.do")
-	public String boardMain(HttpServletRequest request) {
+	public String noticeList(HttpServletRequest request, HttpSession session) {
+		String pageNo = request.getParameter("pageNo");
+		int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
+
 		ArrayList<NoticeDTO> noticelist = noticeService.selectNotice(1);
 		request.setAttribute("noticelist", noticelist);
-		return "board/notice_list";
+
+		int count = noticeService.selectNoticeCount();
+		PaggingVO vo = new PaggingVO(count, currentPageNo, 5, 5);
+		request.setAttribute("pagging", vo);
+		return "notice_list";
+	}
+
+	// 공지사항 글쓰기
+	@RequestMapping("noticeWriteView.do")
+	public String noticeWriteView() {
+		return "notice_write";
+	}
+
+	@RequestMapping("noticeWrite.do")
+	public String noticeWrite(MultipartHttpServletRequest request, HttpSession session)
+			throws UnsupportedEncodingException {
+
+		String title = request.getParameter("notice_title");
+		String content = request.getParameter("notice_content");
+		String date = request.getParameter("notice_date");
+		String url = request.getParameter("notice_url");
+		String id = ((NoticeDTO) session.getAttribute("client")).getId();
+		int nbno = noticeService.insertNotice(new NoticeDTO(0, id, title, content, url, date, 0));
+		// 업로드한 파일 목록
+		System.out.println(request.getParameterMap());
+		List<MultipartFile> nfileList = request.getFiles("file");
+		System.out.println(nfileList.size());
+		String path = "c:\\fileupload\\" + id + "\\";
+		ArrayList<NoticeFileDTO> nflist = new ArrayList<NoticeFileDTO>();
+		int i = 1;
+		for (MultipartFile mf : nfileList) {
+			// 원본 파일명
+			String originalFileName = mf.getOriginalFilename();
+			long fileSize = mf.getSize();
+			if (fileSize == 0)
+				continue;
+			// 저장할 파일 경로 완성
+			SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss");
+			int idx = originalFileName.lastIndexOf(".");
+			// 실제 저장할 파일 경로
+			String saveName = format.format(Calendar.getInstance().getTime()) + "_" + id + "_" + i + "."
+					+ originalFileName.substring(idx + 1);
+			i++;
+			String saveFile = path + saveName;
+			System.out.println(saveFile);
+			File f = new File(saveFile);
+			NoticeFileDTO dto = new NoticeFileDTO(f);
+			dto.setOriginFileName(originalFileName);
+			dto.setNbno(nbno);
+			dto.setId(id);
+			nflist.add(dto);
+			System.out.println(dto.toString());
+			try {
+				// 파일 업로드
+				File parentPath = new File(path);
+				if (!parentPath.exists())
+					parentPath.mkdirs();
+				mf.transferTo(f);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		noticeService.insertFileList(nflist);
+
+		return "redirect:NoticeList.do";
+
+	}
+
+	// 상세 공지 게시글
+	@RequestMapping("noticeView.do")
+	public String noticeView(HttpServletRequest request, HttpSession session) {
+		int nbno = Integer.parseInt(request.getParameter("nbno"));
+		noticeService.addNoticeCount(nbno);
+		NoticeDTO dto = noticeService.selectNoticeContent(nbno);
+		request.setAttribute("notice", dto);
+
+		// 파일목록
+		ArrayList<NoticeFileDTO> nflist = noticeService.selectFileList(nbno);
+		request.setAttribute("nflist", nflist);
+
+		return "notice_view";
+	}
+
+	// 공지 삭제
+	@RequestMapping("noticeDelete.do")
+	public String noticeDelete(HttpServletRequest request) {
+		int nbno = Integer.parseInt(request.getParameter("nbno"));
+		noticeService.deleteNotice(nbno);
+		return "redirect:NoticeList.do";
+	}
+
+	// 공지 수정 페이지로 이동
+	@RequestMapping("noticeView.do")
+	public String noticeUpdateView(HttpServletRequest request) {
+		int nbno = Integer.parseInt(request.getParameter("nbno"));
+		NoticeDTO dto = noticeService.selectNoticeContent(nbno);
+		request.setAttribute("notice", dto);
+		return "notice_update_view";
+	}
+
+	// 공지 수정
+	@RequestMapping("noticeUpdate.do")
+	public String noticeUpdate(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+		String title = request.getParameter("notice_title");
+		String content = request.getParameter("notice_content");
+		int nbno = Integer.parseInt(request.getParameter("nbno"));
+
+		noticeService.updateNotice(nbno, title, content);
+		redirectAttributes.addAttribute("nbno", nbno);
+		return "redirect:/noticeView.do";
+	}
+	
+	
+
+//------------------------------------------------------------------------------
+
+	// 1:1문의 게시판 (어드민만 댓글 달 수 있음 / 어드민 답변 상태 처리 )
+	// 1:1문의 게시판 출력
+	@RequestMapping("MTMRequsetList.do")
+	public String MTMRequestList(HttpServletRequest request) {
+		String pageNo = request.getParameter("pageNo");
+		int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
+
+		ArrayList<MTMRequestDTO> mtmlist = mtmRequestService.selectAllMTM(1);
+		request.setAttribute("mtmlist", mtmlist);
+
+		int count = mtmRequestService.selectMTMRequestCount();
+		PaggingVO vo = new PaggingVO(count, currentPageNo, 10, 5);
+		request.setAttribute("pagging", vo);
+		return "mtm_request_list";
+	}
+
+	// 1:1문의 게시판 글쓰기
+	@RequestMapping("mtmWriteView.do")
+	public String mtmWriteView() {
+		return "mtm_request_write";
+	}
+
+	@RequestMapping("mtmWrite.do")
+	public String mtmWrite(MultipartHttpServletRequest request, HttpSession session)
+			throws UnsupportedEncodingException {
+
+		String title = request.getParameter("mtm_request_title");
+		String content = request.getParameter("mtm_request_content");
+		String date = request.getParameter("mtm_request_date");
+		String url = request.getParameter("mtm_request_url");
+		String id = ((MTMRequestDTO) session.getAttribute("client")).getId();
+		int mno = mtmRequestService.insertMTM(new MTMRequestDTO(id, date, title, content, url, 0, 0));
+		// 업로드한 파일 목록
+		System.out.println(request.getParameterMap());
+		List<MultipartFile> mtmfileList = request.getFiles("file");
+		System.out.println(mtmfileList.size());
+		String path = "c:\\fileupload\\" + id + "\\";
+		ArrayList<MTMFileDTO> mtmflist = new ArrayList<MTMFileDTO>();
+		int i = 1;
+		for (MultipartFile mf : mtmfileList) {
+			// 원본 파일명
+			String originalFileName = mf.getOriginalFilename();
+			long fileSize = mf.getSize();
+			if (fileSize == 0)
+				continue;
+			// 저장할 파일 경로 완성
+			SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss");
+			int idx = originalFileName.lastIndexOf(".");
+			// 실제 저장할 파일 경로
+			String saveName = format.format(Calendar.getInstance().getTime()) + "_" + id + "_" + i + "."
+					+ originalFileName.substring(idx + 1);
+			i++;
+			String saveFile = path + saveName;
+			System.out.println(saveFile);
+			File f = new File(saveFile);
+			MTMFileDTO dto = new MTMFileDTO(f);
+			dto.setOriginFileName(originalFileName);
+			dto.setMno(mno);
+			dto.setId(id);
+			mtmflist.add(dto);
+			System.out.println(dto.toString());
+			try {
+				// 파일 업로드
+				File parentPath = new File(path);
+				if (!parentPath.exists())
+					parentPath.mkdirs();
+				mf.transferTo(f);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		mtmRequestService.insertFileList(mtmflist);
+
+		return "redirect:MTMRequsetList.do";
+
+	}
+
+	// ckeditor에서 이미지 올리는 url 호출 부분
+//	@RequestMapping("imageUpload.do")
+//	public String imageUpload(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+//			@RequestParam MultipartFile upload) {
+//		OutputStream out = null;
+//		PrintWriter printWriter = null;
+//		response.setCharacterEncoding("utf-8");
+//		response.setContentType("text/html;charset=utf-8");
+//		String id = ((MemberDTO) session.getAttribute("client")).getId();
+//		try {
+//
+//			String path = "c:\\fileupload\\" + id;
+//			String fileName = upload.getOriginalFilename();
+//			byte[] bytes = upload.getBytes();
+//			String uploadPath = path + "\\" + fileName;// 저장경로
+//			File parentPath = new File(path);
+//			if (!parentPath.exists())
+//				parentPath.mkdirs();
+//			out = new FileOutputStream(new File(uploadPath));
+//			out.write(bytes);
+//
+//			printWriter = response.getWriter();
+//
+//			// 파일 테이블 등록
+//			MTMFileDTO dto = new MTMFileDTO(new File(uploadPath));
+//			dto.setId(id);
+//			int fno = mtmRequestService.insertFileOne(dto);
+//
+//			// 이미지 업로드 결과 및 board_write.jsp에 뿌릴 이미지 경로 설정
+//			JSONObject json = new JSONObject();
+//			json.put("uploaded", 1);
+//			json.put("fileName", fileName);
+//			json.put("url", "fileDownload.do?fno=" + fno);
+//
+//			printWriter.println(json.toString());
+//			printWriter.flush();
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				if (out != null) {
+//					out.close();
+//				}
+//				if (printWriter != null) {
+//					printWriter.close();
+//				}
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		return null;
+//	}
+
+	// 다운로드
+	@RequestMapping("fileDownload.do")
+	public String fileDownload(HttpServletRequest request, HttpServletResponse response) {
+		int fno = Integer.parseInt(request.getParameter("fno"));
+
+		MTMFileDTO dto = mtmRequestService.selectFile(fno);
+
+		File file = new File(dto.getPath());
+		FileInputStream fis = null;
+		BufferedOutputStream bos = null;
+		try {
+			fis = new FileInputStream(file);
+			String encodingName = URLEncoder.encode(file.getAbsolutePath(), "utf-8");
+			response.setHeader("Content-Disposition", "attachment;filename=" + dto.getOriginFileName());
+			response.setHeader("Content-Transfer-Encode", "binary");
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] buffer = new byte[1024 * 1024];
+			while (true) {
+				int count = fis.read(buffer);
+				if (count == -1)
+					break;
+				bos.write(buffer, 0, count);
+				bos.flush();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fis != null)
+					fis.close();
+				if (bos != null)
+					bos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	// 상세 문의 게시글
+	@RequestMapping("mtmRequestView.do")
+	public String mtmRequestView(HttpServletRequest request, HttpSession session) {
+		int mno = Integer.parseInt(request.getParameter("mno"));
+		mtmRequestService.addMTMRequestCount(mno);
+		MTMRequestDTO dto = mtmRequestService.selectMTMContent(mno);
+		request.setAttribute("mtmRequest", dto);
+
+		// 파일목록
+		ArrayList<MTMFileDTO> mtmflist = mtmRequestService.selectFileList(mno);
+		request.setAttribute("mtmflist", mtmflist);
+
+		return "mtm_request_view";
+	}
+
+	// 문의글 삭제
+	@RequestMapping("mtmRequestDelete.do")
+	public String boardDelete(HttpServletRequest request) {
+		int mno = Integer.parseInt(request.getParameter("mno"));
+		mtmRequestService.deleteMTMRequest(mno);
+		return "redirect:MTMRequsetList.do";
+	}
+
+	// 문의글 수정 페이지로 이동
+	@RequestMapping("MTMRequestUpdateView.do")
+	public String boardUpdateView(HttpServletRequest request) {
+		int mno = Integer.parseInt(request.getParameter("mno"));
+		MTMRequestDTO dto = mtmRequestService.selectMTMContent(mno);
+		request.setAttribute("mtmRequest", dto);
+		return "mtm_request_update_view";
+	}
+
+	// 문의글 수정
+	@RequestMapping("MTMRequestUpdate.do")
+	public String boardUpdate(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+		String title = request.getParameter("mtm_request_title");
+		String content = request.getParameter("mtm_request_content");
+		int mno = Integer.parseInt(request.getParameter("mno"));
+
+		mtmRequestService.updateMTMRequest(mno, title, content);
+		redirectAttributes.addAttribute("mno", mno);
+		return "redirect:/mtmRequestView.do";
 	}
 	
 	// 이희진님 기능 부분(분양 게시판)

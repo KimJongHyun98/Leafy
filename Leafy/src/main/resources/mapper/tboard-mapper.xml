@@ -3,28 +3,80 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.plant.mapper.TBoardMapper">
-	<select id="selectALlTBoard" parameterType="int" resultType="tBoard">
-		select * from (select tb.*, ceil(rownum/5) as pageno from
-		(select * from tip_board order by tb_no desc) tb)
+	<select id="selectAllTip" parameterType="int" resultType="tBoard">
+		select * from (select t.*, ceil(rownum/5) as pageno from
+		(select * from tip_board order by tno desc) t)
 		where pageno = #{pageno}
 	</select>
-<!-- 	<select id="selectTipCount" resultType="int">
+	<select id="selectTipBoardNo" resultType="int">
+		select tip_tno_seq.nextval from dual
+	</select>
+	<select id="selectTipBoardCount" resultType="int">
 		select count(*) from tip_board
 	</select>
-	<select id="selectTBoard" parameterType="map" resultType="tBoard">
-		select * from tip_board where 
+	<update id="addTipBoardCount" parameterType="int">
+		update tip_board set tip_visit = tip_visit + 1 where tno = #{tno}
+	</update>
+	<!-- <insert id="insertTipBoard" parameterType="tBoard">
+		insert into tip_board(tno,id,tip_title,tip_content,tip_date,tip_addfile_url,tip_recommand,tip_visit,tip_comment)
+		values(#{tno},#{id},#{tip_title},#{tip_content},sysdate,#{tip_addfile_url},0,0,0)
+	</insert>
+	<insert id="insertFileInfo" parameterType="tFile">
+		insert into tip_file_list values(file_no_seq.nextval,#{tno},#{id},#{path},sysdate,#{originFileName})
+	</insert>
+	<insert id="insertFileOne" parameterType="tFile">
+		insert into tip_file_list values(#{tfno},#{tno},#{id},#{path},sysdate,#{originFileName})
+	</insert>
+	<select id="selectFileNo" resultType="int">
+		select tip_fno_seq.nextval from dual
+	</select>
+	
+	<select id="selectTipBoardContent" parameterType="int" resultType="tBoard">
+		select * from tip_board  where tno = #{tno} order by tno desc
+	</select>	
+	<select id="selectFileList" parameterType="int" resultType="tFile">
+		select * from tip_file_list where tno = #{tno}
+	</select>
+	<select id="selectFile" parameterType="int" resultType="tFile">
+		select * from tip_file_list where tfno = #{tfno}
+	</select>
+	<delete id="deleteTipBoard" parameterType="int">
+		delete from tip_board where tno = #{tno}
+	</delete>
+	<update id="updateTipBoard" parameterType="map">
+		update tip_board set tip_title=#{tip_title},tip_content=#{tip_content} where tno = #{tno}
+	</update>
+	
+	<select id="selectTipBoard" parameterType="map" resultType="tBoard">
+	select * from 
+    (SELECT PG.*,  CEIL(ROWNUM/5) AS PAGENO FROM 
+        (SELECT t.* FROM 
+            (SELECT * FROM TIP_BOARD ORDER BY TNO DESC) t) PG WHERE  
 		<choose>
 			<when test="kind.equals('title')">
-				tb_title like '%' || #{search} || '%'
+				TIP_TITLE LIKE '%' || #{search} || '%'
 			</when>
 			<when test="kind.equals('title_content')">
-				tb_title like '%' || #{search} || '%' 
-				and tb_content like '%' || #{search} || '%'
+				TIP_TITLE LIKE '%' || #{search} || '%' AND TIP_CONTENT LIKE '%' || #{search} || '%'
 			</when>
 			<otherwise>
-				id like '%' || #{search} || '%'
+				ID LIKE '%' || #{search} || '%'
 			</otherwise>
 		</choose>
-		order by tb_no desc
+                ORDER BY TNO DESC) where PAGENO = #{pageNo}
+	</select>
+	<select id="selectTipBoardSearchCount" resultType="int">
+		SELECT COUNT(*) FROM TIP_BOARD WHERE
+		<choose>
+			<when test="kind.equals('title')">
+				TIP_TITLE LIKE '%' || #{search} || '%'
+			</when>
+			<when test="kind.equals('title_content')">
+				TIP_TITLE LIKE '%' || #{search} || '%' AND TIP_CONTENT LIKE '%' || #{search} || '%'
+			</when>
+			<otherwise>
+				ID LIKE '%' || #{search} || '%'
+			</otherwise>
+		</choose>			
 	</select> -->
 </mapper>

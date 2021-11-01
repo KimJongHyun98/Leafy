@@ -167,10 +167,17 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-        <table>
-        	
-        </table>
-       	
+        <div class="notice_box">
+			<form action="noticeUpdate.do" method="post">
+				<input type="text" name="notice_title"  value="${requestScope.notice.notice_title }">
+				<p>${requestScope.notice.notice_date }</p>
+				<hr>
+				<textarea name="notice_content">${requestScope.notice.notice_content }</textarea>
+				<button>수정</button>
+				<button type="button" onclick="history.back();">취소</button>
+				<input type="hidden" name="nbno" value="${requestScope.notice.nbno }">
+			</form>
+		</div>
     </section>
 
     <footer>

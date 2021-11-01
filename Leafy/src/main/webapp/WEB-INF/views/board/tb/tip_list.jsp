@@ -314,45 +314,55 @@ footer #bottom {
 			<thead>
 				<tr>
 					<th>번호</th>
+					<th>제목</th>
+					<th>작성자</th>
+					<th>작성일</th>
+					<th>추천수</th>
+					<th>조회수</th>
 				</tr>
 			</thead>
-			<tbody>
-				<c:forEach var="tb" items="#{requestScope.list}">
-					<tr>
-						<td>${tb.tb_no}</td>
-						<td>${tb.tb_addfile_url}</td>
-						<td>${tb.tb_title}</td>
-						<td>${tb.tb_content}</td>
-						<td>${tb.id}</td>
-						<td>${tb.tb_visit}</td>
-						<td>${tb.tb_recommand}</td>
-						<td>${tb.tb_comment}</td>
-						<td>${tb.tb_date}</td>
-					</tr>
-				</c:forEach>
+		<!-- 게시판 리스트 전체 출력 -->
+			<tbody class="result">
+			<c:forEach var="tip" items="${requestScope.tblist }">
+				<tr>
+					<td>${tip.tno }</td>
+					<td>${tip.tip_addfile_url }</td>
+					<td>${tip.id }</td>
+					<td><a href="tipView.do?tno=${fb.tno }">${tip.tip_title }</a></td>
+					<td>${tip.tip_content }</td>
+					<td>${tip.tip_date }</td>
+					<td>${tip.tip_visit }</td>
+					<td>${tip.tip_recommand }</td>
+					<td>${tip.tip_commnet }</td>
+				</tr>
+			</c:forEach>
 			</tbody>
-			<!-- 페이징 -->
-		<%-- 	<tr>
-				<td colspan="7"><c:if
-						test="${requestScope.pagging.priviousPageGroup }">
-						<a
-							href="TipboardList.do?pageNo=${requestScope.pagging.startPageOfPageGroup-1 }"><<</a>
-					</c:if> <c:forEach var="i"
-						begin="${requestScope.pagging.startPageOfPageGroup}"
-						end="${requestScope.pagging.endPageOfPageGroup}">
-						<c:choose>
-							<c:when test="${i == requestScope.pagging.currentPageNo }">
-						${i }
-					</c:when>
-							<c:otherwise>
-								<a href="TipboardList.do?pageNo=${i} ">${i }</a>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach> <c:if test="${requestScope.pagging.nextPageGroup }">
-						<a
-							href="TipboardList.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }">>></a>
-					</c:if></td>
-			</tr> --%>
+				<!-- 페이징 -->
+				<tr>
+					<td colspan="7">
+						<c:if test="${requestScope.pagging.previousPageGroup }">
+							<a href="freeBoardList.do?pageNo=${requestScope.pagging.startPageOfPageGroup-1 }"><<</a>				
+						</c:if>
+						<c:forEach var="i" begin="${requestScope.pagging.startPageOfPageGroup }" end="${requestScope.pagging.endPageOfPageGroup }">
+							<c:choose>
+								<c:when test="${i == requestScope.pagging.currentPageNo }">
+									${i }
+								</c:when>
+								<c:otherwise>
+									<c:if test="${requestScope.count == null }">
+										<a href="tipList.do?pageNo=${i }">${i }</a>
+									</c:if>
+									<c:if test="${requestScope.count != null }">
+										<a href="tipSearch.do?pageNo=${i }&kind=${requestScope.kind }&search=${requestScope.search}">${i }</a>
+									</c:if>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						<c:if test="${requestScope.pagging.nextPageGroup }">
+							<a href="tipList.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }">>></a>				
+						</c:if>
+					</td>
+				</tr>
 		</table>
 
 
@@ -360,7 +370,7 @@ footer #bottom {
 
 		<!-- 검색바 -->
 		<div class="search_box">
-			<form class="frm_tip_search" action="TipBoardSearch.do">
+			<form class="frm_tip_search" action="tipBoardSearch.do">
 				<select name="kind">
 					<option value="title">제목</option>
 					<option value="title_content">제목+내용</option>
