@@ -1,6 +1,9 @@
 package com.plant;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -8,7 +11,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,28 +31,36 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.plant.dto.ComparisonDTO;
 import com.plant.dto.FBCommentDTO;
 import com.plant.dto.FBFileDTO;
 import com.plant.dto.FBoardDTO;
+import com.plant.dto.MTMFileDTO;
+import com.plant.dto.MTMRequestDTO;
 import com.plant.dto.MemberDTO;
 import com.plant.dto.NoticeDTO;
+import com.plant.dto.NoticeFileDTO;
 import com.plant.dto.PBCommentDTO;
 import com.plant.dto.PBFileDTO;
 import com.plant.dto.PBoardDTO;
 import com.plant.dto.PCBoardDTO;
 import com.plant.dto.PaggingVO;
 import com.plant.dto.ReviewDTO;
+import com.plant.dto.TBCommentDTO;
 import com.plant.dto.TBoardDTO;
 import com.plant.service.FBoardService;
 import com.plant.service.LoginService;
+import com.plant.service.MTMRequestService;
 import com.plant.service.MemberService;
 import com.plant.service.NoticeService;
+import com.plant.service.PBoardService;
 import com.plant.service.PCBoardService;
 import com.plant.service.TBoardService;
-import com.plant.service.PBoardService;
+import com.sun.java.util.jar.pack.Package.File;
 
 @Controller
 public class MainController { // 메인컨트롤러
@@ -57,8 +70,9 @@ public class MainController { // 메인컨트롤러
 	private TBoardService tBoardService;
 	private PCBoardService pcBoardService;
 	private NoticeService noticeService;
+	private MTMRequestService mtmRequestService;
 
-	public MainController(MemberService memberService,FBoardService fBoardService,PBoardService pBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService) {
+	public MainController(MemberService memberService,FBoardService fBoardService,PBoardService pBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService, MTMRequestService mtmRequestService) {
 		super();
 		this.memberService = memberService;
 		this.fBoardService = fBoardService;
@@ -66,6 +80,7 @@ public class MainController { // 메인컨트롤러
 		this.tBoardService = tBoardService;
 		this.pcBoardService = pcBoardService;
 		this.noticeService = noticeService;
+		this.mtmRequestService = mtmRequestService;
 	}
 
 	// 오형석 기능 부분(자유게시판 / 포토게시판)
