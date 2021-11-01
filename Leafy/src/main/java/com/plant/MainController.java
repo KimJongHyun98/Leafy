@@ -45,25 +45,46 @@ import com.plant.service.TBoardService;
 
 @Controller
 public class MainController { // 메인컨트롤러
+	private MemberService memberService;
 	private FBoardService fBoardService;
+	private PBoardService pBoardService;
 	private TBoardService tBoardService;
-	private NoticeService noticeService;
 	private PCBoardService pcBoardService;
+	private NoticeService noticeService;
 
-	public MainController(FBoardService fBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService) {
+	public MainController(MemberService memberService,FBoardService fBoardService,PBoardService pBoardService,TBoardService tBoardService,PCBoardService pcBoardService,NoticeService noticeService) {
 		super();
+		this.memberService = memberService;
 		this.fBoardService = fBoardService;
+		this.pBoardService = pBoardService;
 		this.tBoardService = tBoardService;
 		this.pcBoardService = pcBoardService;
 		this.noticeService = noticeService;
 	}
-	
+
 	// 오형석 기능 부분(자유게시판 / 포토게시판)
 	// 페이지 이동 10/20
 	@RequestMapping("/") 
 	public String index() {
-		
 		return "index";
+	}
+	
+	// 로그인 페이지 임시처리 10/25
+	@RequestMapping("login.do")
+	public String login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String id = request.getParameter("id"); 
+		String passwd = request.getParameter("passwd");
+		
+		MemberDTO mdto = memberService.login(id,passwd);
+		
+		if(mdto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('아이디 비밀번호 확인하세요');history.back();</script>");
+			return null;
+		}else {
+			request.getSession().setAttribute("client", mdto);
+			return photoBoardList(request, request.getSession());
+		}
 	}
 	
 	// 자유게시판 페이지 전체 출력 및 페이징 처리 10/20
@@ -81,6 +102,33 @@ public class MainController { // 메인컨트롤러
 		request.setAttribute("pagging", vo);
 		
 		return "board/fb/freeboard_list";
+	}
+	
+	// 포토게시판 페이지 전체 출력 및 페이징 처리 10/31
+	@RequestMapping("photoBoardList.do")
+	public String photoBoardList(HttpServletRequest request, HttpSession session) {
+		String pageNo = request.getParameter("pageNo");
+		int currentPageNo = pageNo == null || pageNo.equals("") ? 1: Integer.parseInt(pageNo);
+
+		// 조회수 높은 게시판 슬라이더 처리
+		ArrayList<PBoardDTO> mvpbList = pBoardService.selectMVPBoard();
+		request.setAttribute("mvpbList", mvpbList);
+		
+		// 전체 게시판 페이징 처리 후 출력
+		ArrayList<PBoardDTO> pbList = pBoardService.selectAllPBoard(currentPageNo);
+		request.setAttribute("pbList", pbList);
+		
+//		// 썸네일 이미지 처리
+//		int pb_fno = Integer.parseInt(request.getParameter("pb_fno"));
+//		PBFileDTO pbfdto = pBoardService.selectPBThumbnail(pb_fno);
+//		request.setAttribute("thumbnail", pbfdto);
+		
+		// 페이징 처리
+		int count = pBoardService.selectPBoardCount();
+		PaggingVO vo = new PaggingVO(count, currentPageNo, 12, 5);
+		request.setAttribute("pagging", vo);
+		
+		return "board/pb/photoboard_list"; 
 	}
 	
 	// 자유게시판 검색 및 페이징 처리 10/21
@@ -106,8 +154,30 @@ public class MainController { // 메인컨트롤러
 		
 		return "board/fb/freeboard_list";
 	}
-	
-	// 자유게시판 상세 게시글 10/21
+
+	// 포토게시판 검색 및 페이징 처리 10/29
+	@RequestMapping("photoBoardSearch.do")
+	public String photoBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+		String kind = request.getParameter("kind");
+		String search = request.getParameter("search");
+		String pageNo = request.getParameter("pageNo");
+		int currentPageNo = pageNo == null || pageNo.equals("") ? 1 : Integer.parseInt(pageNo);
+
+		ArrayList<PBoardDTO> pbList = pBoardService.selectPBoard(kind, search, currentPageNo);
+		request.setAttribute("pbList", pbList);
+
+		// 페이징 처리(검색결과 개수)
+		int count = pBoardService.selectPBoardSearchCount(kind, search);
+		PaggingVO vo = new PaggingVO(count, currentPageNo, 12, 5);
+		request.setAttribute("kind", kind);
+		request.setAttribute("search", search);
+		request.setAttribute("count", count);
+		request.setAttribute("pagging", vo);
+		
+		return "board/pb/photoboard_list";
+	}
+
+	// 자유게시판 상세 게시글 10/25
 	@RequestMapping("freeBoardView.do")
 	public String freeBoardView(HttpServletRequest request, HttpSession session) {
 		// 상세 게시글 출력
@@ -116,28 +186,191 @@ public class MainController { // 메인컨트롤러
 		FBoardDTO dto = fBoardService.selectFBoardContent(fb_no);
 		request.setAttribute("fBoard", dto);
 		
+		// 파일 목록
+		ArrayList<FBFileDTO> flist = fBoardService.selectFileList(fb_no);
+		request.setAttribute("flist", flist);
+
+		// 댓글 쓰는 창
+		String id = ((MemberDTO)session.getAttribute("client")).getId();
+		request.setAttribute("id", id);
+
 		// 댓글 출력창
 		List<FBCommentDTO> fbclist = fBoardService.selectFBoardComment(fb_no);
 		request.setAttribute("fbclist", fbclist);
-		System.out.println(fbclist);
 		
 		return "board/fb/freeboard_view";
 	}
 	
-	// 자유게시판 게시글 추천올리는 기능 10/21
-	@RequestMapping("freeBoardRecommand.do")
-	public String freeBoardRecommand(HttpServletRequest request, HttpServletResponse response) throws IOException, JSONException {
+	// 포토게시판 상세 게시글 10/29
+	@RequestMapping("photoBoardView.do")
+	public String photoBoardView(HttpServletRequest request, HttpSession session) {
+		// 상세 게시글 출력
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		pBoardService.addPBoardCount(pb_no);
+		PBoardDTO dto = pBoardService.selectPBoardContent(pb_no);
+		request.setAttribute("pBoard", dto);
+		
+		// 파일 목록
+		ArrayList<PBFileDTO> flist = pBoardService.selectFileList(pb_no);
+		request.setAttribute("flist", flist);
+
+		// 댓글 쓰는 창
+		String id = ((MemberDTO)session.getAttribute("client")).getId();
+		request.setAttribute("id", id);
+
+		// 댓글 출력창
+		ArrayList<PBCommentDTO> pbclist = pBoardService.selectPBoardComment(pb_no);
+		request.setAttribute("pbclist", pbclist);
+		
+		return "board/pb/photoboard_view";
+	}
+
+	// 자유게시판 상세 게시글 파일 다운로드 10/25
+	@RequestMapping("freeBoardFileDownload.do")
+	public String freeBoardFileDownload(HttpServletRequest request, HttpServletResponse response) {
+		int fb_fno = Integer.parseInt(request.getParameter("fb_fno"));
+		
+		FBFileDTO fbfdto = fBoardService.selectFile(fb_fno);
+		
+		File file = new File(fbfdto.getPath());
+		FileInputStream fis = null;
+		BufferedOutputStream bos = null;
+		try {
+			fis = new FileInputStream(file);
+			String encodingName = URLEncoder.encode(file.getAbsolutePath(),"utf-8");
+			response.setHeader("Content-Disposition", "attachment;filename="+fbfdto.getOriginalFileName());
+			response.setHeader("Content-Transfer-Encode", "binary");
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] buffer = new byte[1024*1024];
+			while(true) {
+				int count = fis.read(buffer);
+				if(count == -1) break;
+				bos.write(buffer,0,count);
+				bos.flush();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(fis != null)
+					fis.close();
+				if(bos != null)
+					bos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	// 포토게시판 상세 게시글 파일 다운로드 및 화면 출력 10/29
+	@RequestMapping("photoBoardFileDownload.do")
+	public String photoBoardFileDownload(HttpServletRequest request, HttpServletResponse response) {
+		int pb_fno = Integer.parseInt(request.getParameter("pb_fno"));
+		
+		PBFileDTO pbfdto = pBoardService.selectFile(pb_fno);
+		
+		File file = new File(pbfdto.getPath());
+		FileInputStream fis = null;
+		BufferedOutputStream bos = null;
+		try {
+			fis = new FileInputStream(file);
+			String encodingName = URLEncoder.encode(file.getAbsolutePath(),"utf-8");
+			response.setHeader("Content-Disposition", "attachment;filename="+pbfdto.getOriginalFileName());
+			response.setHeader("Content-Transfer-Encode", "binary");
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] buffer = new byte[1024*1024];
+			while(true) {
+				int count = fis.read(buffer);
+				if(count == -1) break;
+				bos.write(buffer,0,count);
+				bos.flush();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(fis != null)
+					fis.close();
+				if(bos != null)
+					bos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	// 자유게시판 댓글 입력 10/28
+	@RequestMapping("freeBoardInsertComment.do")
+	public String freeBoardInsertComment(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		// 댓글 입력 요소
 		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
-		MemberDTO dto = (MemberDTO) request.getSession().getAttribute("client");
+		String id = ((MemberDTO)session.getAttribute("client")).getId();
+		String fb_comment_content = request.getParameter("fb_comment_content");
+		
+		int result = fBoardService.insertFBComment(new FBCommentDTO(fb_no, id, fb_comment_content));
+		request.setAttribute("result", result);
+		
+		return "redirect:freeBoardView.do?fb_no="+fb_no;
+	}
+	
+	// 포토게시판 댓글 입력 10/29
+	@RequestMapping("photoBoardInsertComment.do")
+	public String photoBoardInsertComment(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		// 댓글 입력 요소
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		String commentor_id = ((MemberDTO)session.getAttribute("client")).getId();
+		String pb_comment_content = request.getParameter("pb_comment_content");
+		
+		int result = pBoardService.insertPBComment(new PBCommentDTO(pb_no, commentor_id, pb_comment_content));
+		request.setAttribute("result", result);
+		
+		return "redirect:photoBoardView.do?pb_no="+pb_no;
+	}
+
+	// 자유게시판 댓글 삭제 10/28
+	@RequestMapping("freeBoardDeleteComment.do")
+	public String freeBoardDeleteComment(HttpServletRequest request) {
+		int fbc_no = Integer.parseInt(request.getParameter("fbc_no"));
+		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
+		fBoardService.deleteFBComment(fbc_no);
+		
+		return "redirect:freeBoardView.do?fb_no="+fb_no;
+	}
+	
+	// 포토게시판 댓글 삭제 10/29
+	@RequestMapping("photoBoardDeleteComment.do")
+	public String photoBoardDeleteComment(HttpServletRequest request) {
+		int pbc_no = Integer.parseInt(request.getParameter("pbc_no"));
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		pBoardService.deletePBComment(pbc_no);
+		
+		return "redirect:photoBoardView.do?pb_no="+pb_no;
+	}
+	
+	// 자유게시판 게시글 추천올리는 기능 10/21 미완성
+	@RequestMapping("freeBoardRecommand.do")
+	public String freeBoardRecommand(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, JSONException {
+		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
+		String id = ((MemberDTO)session.getAttribute("client")).getId();
 		response.setContentType("text/html;charset=utf-8");
 		JSONObject obj = new JSONObject();
-		if(dto == null) {
+		if(id == null) {
 			obj.put("msg", "로그인하셔야 이용하실수 있습니다.");
 			obj.put("code", 400);
 			response.getWriter().write(obj.toString());
 			return null;
 		}
-		boolean result = fBoardService.insertFBoardRecommand(fb_no, dto.getId());
+		boolean result = fBoardService.insertFBoardRecommand(fb_no, id);
 		String msg = result ? "게시글을 추천하였습니다." : "게시글 추천을 취소하였습니다.";
 		obj.put("msg",msg);
 		obj.put("code",200);
@@ -145,20 +378,9 @@ public class MainController { // 메인컨트롤러
 
 		return null;
 	}
-	
-	// 자유게시판 댓글 입력 10/20
-	@RequestMapping("freeBoardInsertComment.do")
-	public String freeBoardInsertComment(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		// 댓글 입력 요소
 
-		String fb_comment_content = request.getParameter("fb_comment_content");
-		String fb_comment_date = request.getParameter("fb_comment_date");
-		
-		FBCommentDTO cdto = fBoardService.insertFBComment(new FBCommentDTO(0, 0, null, fb_comment_content, fb_comment_date));
-		request.setAttribute("cdto", cdto);
-		
-		return "redirect:freeBoardView.do";
-	}
+	// 포토게시판 게시글 추천올리는 기능 아직 작업안함
+
 	
 	// 자유게시판 글쓰기 페이지 이동 10/20
 	@RequestMapping("freeBoardWriteView.do")
@@ -166,14 +388,164 @@ public class MainController { // 메인컨트롤러
 		return "board/fb/freeboard_write";
 	}
 	
-	// 자유게시판 글쓰기 페이지 10/20
+	// 포토게시판 글쓰기 페이지 이동 10/29
+	@RequestMapping("photoBoardWriteView.do")
+	public String photoBoardWriteView() {
+		return "board/pb/photoboard_write";
+	}
+	
+	// 자유게시판 글쓰기 페이지 10/25
 	@RequestMapping("freeBoardWrite.do")
-	public String freeBoardWrite(MultipartHttpServletRequest request, HttpSession session) {
+	public String freeBoardWrite(MultipartHttpServletRequest request, HttpSession session) throws UnsupportedEncodingException {
 		String fb_title = request.getParameter("fb_title");
 		String fb_content = request.getParameter("fb_content");
-		// String creator_id = ((MemberDTO)session.getAttribute("creator_id")).getId();
-
+		String creator_id = ((MemberDTO)session.getAttribute("client")).getId();
+		int fb_no = fBoardService.insertFBoard(new FBoardDTO(creator_id, 0, fb_title, fb_content, null, null, 0, 0));
+		// 업로드할 파일 목록
+		List<MultipartFile> fileList = request.getFiles("file");
+		String path = "c:\\fileupload\\"+creator_id+"\\";
+		ArrayList<FBFileDTO> flist = new ArrayList<FBFileDTO>();
+		
+		int i = 1;
+		for(MultipartFile mf : fileList) {
+			// 원본 파일명
+			String originalFileName = mf.getOriginalFilename();
+			long fileSize = mf.getSize();
+			if(fileSize == 0) continue;
+			//저장할 파일 경로 완성
+			SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss");
+			int idx = originalFileName.lastIndexOf(".");
+			//실제 저장할 파일 경로
+			String saveName = format.format(Calendar.getInstance().getTime())+"_"+i+"."+originalFileName.substring(idx+1);
+			i++;
+			String saveFile = path + saveName;
+			File f = new File(saveFile);
+			FBFileDTO fbdto = new FBFileDTO(f);
+			fbdto.setOriginalFileName(originalFileName);
+			fbdto.setFb_no(fb_no);
+			flist.add(fbdto);
+			
+			try {
+				File parentPath = new File(path);
+				if(!parentPath.exists()) parentPath.mkdirs();
+				mf.transferTo(f);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		fBoardService.insertFileList(flist);
+		
 		return "redirect:freeBoardList.do";
+	}
+
+	// 포토게시판 글쓰기 페이지 10/29
+	@RequestMapping("photoBoardWrite.do")
+	public String photoBoardWrite(MultipartHttpServletRequest request, HttpSession session) throws UnsupportedEncodingException {
+		String creator_id = ((MemberDTO)session.getAttribute("client")).getId();
+		String pb_title = request.getParameter("pb_title");
+		String pb_content = request.getParameter("pb_content");
+		int pb_no = pBoardService.insertPBoard(new PBoardDTO(creator_id, 0, pb_title, pb_content, null, null, 0, 0));
+		// 업로드할 파일 목록
+		List<MultipartFile> fileList = request.getFiles("file");
+		String path = "c:\\fileupload\\"+creator_id+"\\";
+		ArrayList<PBFileDTO> flist = new ArrayList<PBFileDTO>();
+		
+		int i = 1;
+		for(MultipartFile mf : fileList) {
+			// 원본 파일명
+			String originalFileName = mf.getOriginalFilename();
+			long fileSize = mf.getSize();
+			if(fileSize == 0) continue;
+			//저장할 파일 경로 완성
+			SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss");
+			int idx = originalFileName.lastIndexOf(".");
+			//실제 저장할 파일 경로
+			String saveName = format.format(Calendar.getInstance().getTime())+"_"+i+"."+originalFileName.substring(idx+1);
+			i++;
+			String saveFile = path + saveName;
+			File f = new File(saveFile);
+			PBFileDTO pbfdto = new PBFileDTO(f);
+			pbfdto.setOriginalFileName(originalFileName);
+			pbfdto.setPb_no(pb_no);
+			flist.add(pbfdto);
+			
+			try {
+				File parentPath = new File(path);
+				if(!parentPath.exists()) parentPath.mkdirs();
+				mf.transferTo(f);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		pBoardService.insertFileList(flist);
+		
+		return "redirect:photoBoardList.do";
+	}
+	
+	
+	// 자유게시글 수정 페이지로 이동 10/26
+	@RequestMapping("freeBoardUpdateView.do")
+	public String freeBoardUpdateView(HttpServletRequest request) {
+		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
+		FBoardDTO fbdto = fBoardService.selectFBoardContent(fb_no);
+		request.setAttribute("fbdto", fbdto);
+		
+		return "board/fb/freeboard_update_view";
+	}
+	
+	// 포토게시글 수정 페이지로 이동 10/29
+	@RequestMapping("photoBoardUpdateView.do")
+	public String photoBoardUpdateView(HttpServletRequest request) {
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		PBoardDTO pbdto = pBoardService.selectPBoardContent(pb_no);
+		request.setAttribute("pbdto", pbdto);
+		
+		return "board/pb/photoboard_update_view";
+	}
+
+	// 자유게시글 수정 10/26
+	@RequestMapping("freeBoardUpdate.do")
+	public String freeBoardUpdate(HttpServletRequest request) {
+		String fb_title = request.getParameter("fb_title");
+		String fb_content = request.getParameter("fb_content");
+		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
+		System.out.println(fb_title);
+		System.out.println(fb_content);
+		System.out.println(fb_no);
+		fBoardService.updateFBoard(fb_no,fb_title,fb_content);
+
+		return "redirect:freeBoardView.do?fb_no="+fb_no;
+	}
+	
+	// 포토게시글 수정 10/29
+	@RequestMapping("photoBoardUpdate.do")
+	public String photoBoardUpdate(HttpServletRequest request) {
+		String pb_title = request.getParameter("pb_title");
+		String pb_content = request.getParameter("pb_content");
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		pBoardService.updatePBoard(pb_no, pb_title, pb_content);
+
+		return "redirect:photoBoardView.do?pb_no="+pb_no;
+	}
+	
+	// 자유게시글 삭제 10/28
+	@RequestMapping("freeBoardDelete.do")
+	public String freeBoardDelete(HttpServletRequest request) {
+		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
+		fBoardService.deleteFBoard(fb_no);
+		return "redirect:freeBoardList.do";
+	}
+	
+	// 포토게시글 삭제 10/29
+	@RequestMapping("photoBoardDelete.do")
+	public String photoBoardDelete(HttpServletRequest request) {
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		pBoardService.deletePBoard(pb_no);
+		return "redirect:photoBoardList.do";
 	}
 	
 	// 안태진님 기능 부분(가격비교 게시판 / 회사소개)
