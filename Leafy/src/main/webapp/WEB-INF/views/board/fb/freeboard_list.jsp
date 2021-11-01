@@ -257,7 +257,7 @@
 				<select name="kind">
 					<option value="title">제목</option>
 					<option value="title_content">제목+내용</option>
-					<option value="creator">작성자</option>
+					<option value="creator_id">작성자</option>
 				</select>
 				<input type="text" name="search" placeholder="검색어 입력">
 				<button class="btn_fb_search">검색</button>

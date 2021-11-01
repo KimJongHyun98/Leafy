@@ -3,12 +3,15 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.plant.mapper.FBoardMapper">
+	<!-- 전체 페이지 출력 -->
 	<select id="selectAllFBoard" parameterType="int" resultType="fBoard">
-		SELECT * FROM (SELECT FB.*, CEIL(ROWNUM/10) AS PAGENO FROM (SELECT * FROM FREE_BOARD ORDER BY FB_NO DESC) FB) WHERE PAGENO = #{PAGENO}	
+		SELECT * FROM (SELECT FB.*, CEIL(ROWNUM/10) AS PAGENO FROM (SELECT * FROM FREE_BOARD ORDER BY FB_NO DESC) FB) WHERE PAGENO = #{pageNo}	
 	</select>
+	<!-- 전체 게시글 개수 학인 -->
 	<select id="selectFBoardCount" resultType="int">
 		SELECT COUNT(*) FROM FREE_BOARD
 	</select>
+	<!-- 분류별 검색 기능 -->
 	<select id="selectFBoard" parameterType="map" resultType="fBoard">
 	select * from 
     (SELECT PG.*,  CEIL(ROWNUM/10) AS PAGENO FROM 
@@ -27,6 +30,7 @@
 		</choose>
                 ORDER BY FB_NO DESC) where PAGENO = #{pageNo}
 	</select>
+	<!-- 분류별 검색 결과 게시글 개수 -->
 	<select id="selectFBoardSearchCount" resultType="int">
 		SELECT COUNT(*) FROM FREE_BOARD WHERE
 		<choose>
@@ -41,16 +45,70 @@
 			</otherwise>
 		</choose>			
 	</select>
+	<!-- 상세 게시글 보기 -->
 	<select id="selectFBoardContent" parameterType="int" resultType="fBoard">
 		SELECT * FROM FREE_BOARD WHERE FB_NO = #{fb_no}
 	</select>
+	<!-- 조회수 올리는 기능 -->
 	<update id="addFBoardCount" parameterType="int">
-		UPDATE FREE_BOARD SET FB_VISIT_COUNT = FB_VISIT_COUNT + 1 WHERE FB_NO = ${fb_no} 
+		UPDATE FREE_BOARD SET FB_VISIT_COUNT = FB_VISIT_COUNT + 1 WHERE FB_NO = #{fb_no} 
 	</update>
+	<!-- 댓글 보기 기능 -->
 	<select id="selectFBoardComment" parameterType="int" resultType="fbComment">
 		SELECT * FROM FB_COMMENT WHERE FB_NO = #{fb_no}
 	</select>
+	<!-- 댓글 삽입 기능 -->
 	<insert id="insertFBComment" parameterType="fbComment">
-		INSERT INTO FB_COMMENT(FBC_NO, FB_NO, COMMENTOR_ID, FB_COMMENT_CONTENT, FB_COMMENT_DATE) VALUES(#{fbc_no},#{fb_no},#{commentor_id},#{fb_comment_content},sysdate)
+		INSERT INTO FB_COMMENT(FBC_NO, FB_NO, COMMENTOR_ID, FB_COMMENT_CONTENT, FB_COMMENT_DATE) VALUES(fbc_no_seq.nextval,#{fb_no},#{commentor_id},#{fb_comment_content},sysdate)
 	</insert>
+	<!-- 댓글 삭제 -->
+	<delete id="deleteFBComment" parameterType="int">
+		DELETE FROM FB_COMMENT WHERE FBC_NO = #{fbc_no}
+	</delete>
+	<!-- 게시글 번호 -->
+	<select id="selectFBoardNo" resultType="int">
+		SELECT FB_NO_SEQ.NEXTVAL FROM DUAL
+	</select>
+	<!-- 게시글 추가 -->
+	<insert id="insertFBoard" parameterType="fBoard">
+		INSERT INTO FREE_BOARD(CREATOR_ID, FB_NO, FB_TITLE, FB_CONTENT, FB_CREATE_DATE, FB_UPDATE_DATE, FB_RECOMMAND_COUNT, FB_VISIT_COUNT) VALUES(#{creator_id}, #{fb_no}, #{fb_title}, #{fb_content}, sysdate, sysdate, 0, 0)
+	</insert>
+	<!-- 첨부파일 입력 -->
+	<insert id="insertFileInfo" parameterType="fbfile">
+		INSERT INTO FB_FILE_LIST VALUES(fb_fno_seq.nextval, #{fb_no}, #{path}, #{originalFileName})
+	</insert>
+	<!-- 첨부파일 목록 보기 -->
+	<select id="selectFileList" parameterType="int" resultType="fbfile">
+		SELECT * FROM FB_FILE_LIST WHERE FB_NO = #{fb_no}
+	</select>
+	<!-- 첨부파일 목록 -->
+	<select id="selectFile" parameterType="int" resultType="fbfile">
+		SELECT * FROM FB_FILE_LIST WHERE FB_FNO = #{fb_fno}
+	</select>
+	<!-- 게시글 수정 -->
+	<update id="updateFBoard" parameterType="map">
+		UPDATE FREE_BOARD SET FB_TITLE = #{fb_title}, FB_CONTENT = #{fb_content} WHERE FB_NO = #{fb_no}	
+	</update>
+	<!-- 게시글 삭제 -->
+	<delete id="deleteFBoard" parameterType="int">
+		DELETE FROM FREE_BOARD WHERE FB_NO = #{fb_no}
+	</delete>
+	<!-- 게시글 추천 -->
+	<insert id="insertFBoardRecommand" parameterType="map">
+		INSERT INTO FB_RECOMMEND VALUES(#{fb_no},#{id})
+	</insert>
+	<!-- 게시글 추천 취소 -->
+	<delete id="deleteFBoardRecommand" parameterType="map">
+		DELETE FROM FB_RECOMMEND WHERE FB_NO = #{fb_no} and id like #{id}
+	</delete>
 </mapper>
+
+
+
+
+
+
+
+
+
+

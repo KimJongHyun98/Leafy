@@ -11,7 +11,6 @@ public class FBoardDTO {
 	private String fb_content;
 	private String fb_create_date;
 	private String fb_update_date;
-	private String fb_addfile_url;
 	private int fb_recommand_count;
 	private int fb_visit_count;
 
@@ -19,7 +18,7 @@ public class FBoardDTO {
 	}
 
 	public FBoardDTO(String creator_id, int fb_no, String fb_title, String fb_content, String fb_create_date,
-			String fb_update_date, String fb_addfile_url, int fb_recommand_count, int fb_visit_count) {
+			String fb_update_date, int fb_recommand_count, int fb_visit_count) {
 		super();
 		this.creator_id = creator_id;
 		this.fb_no = fb_no;
@@ -27,7 +26,6 @@ public class FBoardDTO {
 		this.fb_content = fb_content;
 		this.fb_create_date = fb_create_date;
 		this.fb_update_date = fb_update_date;
-		this.fb_addfile_url = fb_addfile_url;
 		this.fb_recommand_count = fb_recommand_count;
 		this.fb_visit_count = fb_visit_count;
 	}
@@ -80,14 +78,6 @@ public class FBoardDTO {
 		this.fb_update_date = fb_update_date;
 	}
 
-	public String getFb_addfile_url() {
-		return fb_addfile_url;
-	}
-
-	public void setFb_addfile_url(String fb_addfile_url) {
-		this.fb_addfile_url = fb_addfile_url;
-	}
-
 	public int getFb_recommand_count() {
 		return fb_recommand_count;
 	}
@@ -108,11 +98,7 @@ public class FBoardDTO {
 	public String toString() {
 		return "FBoardDTO [creator_id=" + creator_id + ", fb_no=" + fb_no + ", fb_title=" + fb_title + ", fb_content="
 				+ fb_content + ", fb_create_date=" + fb_create_date + ", fb_update_date=" + fb_update_date
-				+ ", fb_addfile_url=" + fb_addfile_url + ", fb_recommand_count=" + fb_recommand_count
-				+ ", fb_visit_count=" + fb_visit_count + "]";
+				+ ", fb_recommand_count=" + fb_recommand_count + ", fb_visit_count=" + fb_visit_count + "]";
 	}
 
-	
-
-	
 }

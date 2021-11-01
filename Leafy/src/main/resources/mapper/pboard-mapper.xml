@@ -3,5 +3,115 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.plant.mapper.PBoardMapper">
-
+	<!-- 전체 페이지 출력 -->
+	<select id="selectAllPBoard" parameterType="int" resultType="pBoard">
+		SELECT * FROM (SELECT PB.*, CEIL(ROWNUM/12) AS PAGENO FROM (SELECT * FROM PHOTO_BOARD ORDER BY PB_NO DESC) PB) WHERE PAGENO = #{pageNo}
+	</select>
+	<!-- 조회수 높은 순 게시판 슬라이드 -->
+	<select id="selectMVPBoard" resultType="pBoard">
+		SELECT * FROM
+		    (SELECT PB.*, RANK() OVER(ORDER BY PB.PB_VISIT_COUNT DESC) RNK FROM PHOTO_BOARD PB)
+		    WHERE <![CDATA[ RNK<=6 ]]>
+	</select>
+	<!-- 전체 게시글 개수 학인 -->
+	<select id="selectPBoardCount" resultType="int">
+		SELECT COUNT(*) FROM PHOTO_BOARD
+	</select>
+	<!-- 분류별 검색 -->
+	<select id="selectPBoard" parameterType="map" resultType="pBoard">
+		SELECT * FROM
+	    (SELECT PG.*,  CEIL(ROWNUM/12) AS PAGENO FROM 
+	        (SELECT PB.* FROM 
+	            (SELECT * FROM PHOTO_BOARD ORDER BY PB_NO DESC) PB) PG WHERE  
+			<choose>
+				<when test="kind.equals('title')">
+					PB_TITLE LIKE '%' || #{search} || '%'
+				</when>
+				<when test="kind.equals('title_content')">
+					PB_TITLE LIKE '%' || #{search} || '%' AND PB_CONTENT LIKE '%' || #{search} || '%'
+				</when>
+				<otherwise>
+					CREATOR_ID LIKE '%' || #{search} || '%'
+				</otherwise>
+			</choose>
+	                ORDER BY PB_NO DESC) where PAGENO = #{pageNo}
+	</select>
+	<!-- 분류별 검색 결과 게시글 개수 -->
+	<select id="selectPBoardSearchCount" resultType="int">
+		SELECT COUNT(*) FROM PHOTO_BOARD WHERE
+		<choose>
+			<when test="kind.equals('title')">
+				PB_TITLE LIKE '%' || #{search} || '%'
+			</when>
+			<when test="kind.equals('title_content')">
+				PB_TITLE LIKE '%' || #{search} || '%' AND PB_CONTENT LIKE '%' || #{search} || '%'
+			</when>
+			<otherwise>
+				CREATOR_ID LIKE '%' || #{search} || '%'
+			</otherwise>
+		</choose>			
+	</select>
+	<!-- 상세게시글 보기 -->
+	<select id="selectPBoardContent" parameterType="int" resultType="pBoard">
+		SELECT * FROM PHOTO_BOARD WHERE PB_NO = #{pb_no}
+	</select>
+	<!-- 조회수 올리는 기능 -->
+	<update id="addPBoardCount" parameterType="int">
+		UPDATE PHOTO_BOARD SET PB_VISIT_COUNT = PB_VISIT_COUNT + 1 WHERE PB_NO = #{pb_no}
+	</update>
+	<!-- 파일 보기 -->
+	<select id="selectFileList" parameterType="int" resultType="pbfile">
+		SELECT * FROM PB_FILE_LIST WHERE PB_NO = #{pb_no}
+	</select>
+	<!-- 댓글 보기 -->
+	<select id="selectPBoardComment" parameterType="int" resultType="pbComment">
+		SELECT * FROM PB_COMMENT WHERE PB_NO = #{pb_no}
+	</select>
+	<!-- 댓글 입력 -->
+	<insert id="insertPBComment" parameterType="pbComment">
+		INSERT INTO PB_COMMENT(PBC_NO,PB_NO,COMMENTOR_ID,PB_COMMENT_CONTENT,PB_COMMENT_DATE) VALUES(pbc_no_seq.nextval,#{pb_no},#{commentor_id},#{pb_comment_content},sysdate)
+	</insert>
+	<!-- 댓글 삭제 -->
+	<delete id="deletePBComment" parameterType="int">
+		DELETE FROM PB_COMMENT WHERE PBC_NO = #{pbc_no}
+	</delete>
+	<!-- 게시글 번호 -->
+	<select id="selectPBoardNo" resultType="int">
+		SELECT PB_NO_SEQ.NEXTVAL FROM DUAL
+	</select>
+	<!-- 게시글 추가 -->
+	<insert id="insertPBoard" parameterType="pBoard">
+		INSERT INTO PHOTO_BOARD(CREATOR_ID, PB_NO, PB_TITLE, PB_CONTENT, PB_CREATE_DATE, PB_UPDATE_DATE, PB_RECOMMAND_COUNT, PB_VISIT_COUNT) VALUES(#{creator_id}, #{pb_no}, #{pb_title}, #{pb_content}, sysdate, sysdate, 0, 0)
+	</insert>
+	<!-- 첨부파일 입력 -->
+	<insert id="insertFileInfo" parameterType="pbfile">
+		INSERT INTO PB_FILE_LIST VALUES(pb_fno_seq.nextval, #{pb_no}, #{path}, #{originalFileName})
+	</insert>
+	<!-- 첨부파일 목록 -->
+	<select id="selectFile" parameterType="int" resultType="pbfile">
+		SELECT * FROM PB_FILE_LIST WHERE PB_FNO = #{pb_fno}
+	</select>
+	<!-- 게시글 수정 -->
+	<update id="updatePBoard" parameterType="map">
+		UPDATE PHOTO_BOARD SET PB_TITLE = #{pb_title}, PB_CONTENT = #{pb_content} WHERE PB_NO = #{pb_no}
+	</update>
+	<!-- 게시글 삭제 -->
+	<delete id="deletePBoard" parameterType="int">
+		DELETE FROM PHOTO_BOARD WHERE PB_NO = #{pb_no}
+	</delete>
+	<!-- 게시글 추천 -->
+	<!-- 게시글 추천 취소 -->
+<!-- 
+	<select id="selectPBThumbnail" parameterType="int" resultType="pbfile">
+		SELECT MIN(PB_FNO) FROM PB_FILE_LIST
+	</select>
+ -->
 </mapper>
+
+
+
+
+
+
+
+
