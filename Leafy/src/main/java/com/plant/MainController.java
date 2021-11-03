@@ -31,6 +31,8 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -42,6 +44,7 @@ import com.plant.dto.FBoardDTO;
 import com.plant.dto.MTMFileDTO;
 import com.plant.dto.MTMRequestDTO;
 import com.plant.dto.MemberDTO;
+import com.plant.dto.MessageDTO;
 import com.plant.dto.NoticeDTO;
 import com.plant.dto.NoticeFileDTO;
 import com.plant.dto.PBCommentDTO;
@@ -52,6 +55,7 @@ import com.plant.dto.PaggingVO;
 import com.plant.dto.ReviewDTO;
 import com.plant.dto.TBCommentDTO;
 import com.plant.dto.TBoardDTO;
+import com.plant.dto.messageDTO;
 import com.plant.service.FBoardService;
 import com.plant.service.LoginService;
 import com.plant.service.MTMRequestService;
@@ -1288,6 +1292,65 @@ public class MainController { // 메인컨트롤러
 		request.getSession().setAttribute("client", dto);			
 			return index();
 		}
+	
+	@RequestMapping(value = "/message_list.do")
+	public String message_list(HttpServletRequest request, HttpSession session) {
+		String nick = (String) session.getAttribute("nick");
+		
+		messageDTO dto = new messageDTO();
+		dto.setNick(nick);
+		
+		ArrayList<messageDTO> list = messageService.messageList(dto);
+		
+		request.setAttribute("list", list);
+		return "message_list";
+	}
+	
+	@RequestMapping(value = "/message_ajax_list.do")
+	public String message_ajax_list(HttpServletRequest request, HttpSession session) {
+		
+		String nick = (String) session.getAttribute("nick");
+		
+		messageDTO dto = new messageDTO();
+		dto.setNick(nick);
+		
+		ArrayList<messageDTO> list = messageService.messageList(dto);
+		
+		request.setAttribute("list", list);
+		
+		return "message_ajax_list";
+	}
+	
+	@RequestMapping(value = "/message_content_list.do")
+	public String message_content_list(HttpServletRequest request, HttpSession session) {
+		
+		int room = Integer.parseInt(request.getParameter("room"));
+		
+		messageDTO dto = new messageDTO();
+		dto.setRoom(room);
+		dto.setNick((String) session.getAttribute("nick"));
+		
+		//메세지 내용을 가져온다.
+		ArrayList<messageDTO> clist = messageService.roomContentList(dto);
+		
+		request.setAttribute("clist", clist);
+		
+		return "message_content_list";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/message_send_inlist.do")
+	public int message_send_inlist(@RequestParam int room, @RequestParam String other_nick, @RequestParam String content, HttpSession session) {
+		
+		messageDTO dto = new messageDTO();
+		dto.setRoom(room);
+		dto.setSend_nick((String) session.getAttribute("nick"));
+		dto.setRecv_nick(other_nick);
+		dto.setContent(content);
+		
+		int flag = messageService.messageSendInlist(dto);
+		return flag;
+	}
 	
 	
 	
