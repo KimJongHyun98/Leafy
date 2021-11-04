@@ -64,6 +64,7 @@ import com.plant.service.NoticeService;
 import com.plant.service.PBoardService;
 import com.plant.service.PCBoardService;
 import com.plant.service.TBoardService;
+import com.plant.service.messageService;
 import com.sun.java.util.jar.pack.Package.File;
 
 @Controller
