@@ -138,6 +138,104 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
+    img{
+    	width: 40px;
+    	height: 40px;
+    	border: 0px;
+    	border-radius: 50%;
+    }
+    p{
+    	font-family: 'Noto Sans KR', sans-serif;
+    	font-size: 20px;
+    }
+    .badge{
+    	margin-left: 15px;
+    }
+    
+    .msg-container{
+    max-width: 1170px; margin: auto;
+    }
+    .inbox_people{
+    	background: #f8f8f8 none repeat scroll 0 0;
+    	float: left;
+    	overflow: hidden;
+    	width: 40%; border-right: 1px solid #f7f7f7;
+    }
+    .inbox_msg {
+    	border: 1px solid #f7f7f7;
+    	border-radius:15px;
+    	clear: both;
+    	overflow: hidden;
+    }
+    .top_spac{margin: 20px 0 0;}
+    .recent_heading{float: left; width:40%;}
+    .srch_bar{
+    display: inline-block;
+    text-align: right;
+    width: 60%; padding:
+    }
+    .heading_srch{padding:10px 29px 10px 20px; overflow:hidden; border-bottom: 1px solid #f7f7f7;}
+    .recent_heading h4 {
+    	color: #5fcf80;
+    	font-size: 30px;
+    	margin: auto;
+    	font-family: 'Nanum Pen Script', cursive;
+    }
+    .srch_bar input{border: 1px solid #cdcdcd; border-width: 0 0 1px 0; width: 80%; padding: 2px 0 4px 6px; background: none; font-family: 'Nanum Pen Script', cursive; font-size: 25px;}
+    .srch_bar .input-group_addon button{
+    	background: rgba(0,0,0,0) none repeat scroll 0 0;
+    	border: medium none;
+    	padding: 0;
+    	color: #707070;
+    	font-size: 18px;
+    }
+    .srch_bar .input-group-addon{margin: 0 0 0 -27px;}
+    
+    .chat_ib h5{font-size: 20px; color: #464646; margin: 0 0 8px 0; font-family: 'Nanum Pen Script', cursive;}
+    .chat_ib h5 span{ font-size: 17px; float: right;}
+    .chat_ib p{font-size: 14px; color: #989898; margin:auto}
+    .chat_img{
+    float: left;
+    width: 11%
+    }
+    
+    .chat_ib{
+    	float: left;
+    	padding: 0 0 0 15px;
+    	width: 88%;
+    }
+    
+    .chat_people{overflow: hidden; clear: both;}
+    .chat_list{
+    	border-bottom: 1px solid #f7f7f7;
+    	margin: 0;
+    	padding: 18px 16px 10px;
+    }
+    
+    .chat_list_box :hover {
+	background-color: #d6ead0;
+	}
+	
+	.inbox_chat{
+		height: 550px;
+		overflow-y: scroll;
+	}
+	.active_chat{
+		background: #ebebeb;
+	}
+	.inbox_chat{height: 550px; overflow-y: scroll;}
+	.active_chat{background: #ebebeb;}
+	.incoming_msg_img{
+		display: inline-blick;
+		width: 6%;
+	}
+	.received_msg{
+	display: inline-block;
+	padding: 0 0 0 10px;
+	vertical-align: top;
+	width: 92%
+	}
+	
 </style>
 </head>
 
