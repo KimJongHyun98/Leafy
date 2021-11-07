@@ -11,9 +11,9 @@ public interface MessageMapper {
 
 	ArrayList<messageDTO> messageList(messageDTO dto);
 
-	int count_unread(messageDTO mto);
+	int countUnread(messageDTO mto);
 
-	String get_other_profile(messageDTO mto);
+	String getOtherProfile(messageDTO mto);
 
 	ArrayList roomContentList(messageDTO dto);
 

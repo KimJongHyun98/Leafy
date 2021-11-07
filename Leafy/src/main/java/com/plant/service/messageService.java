@@ -24,9 +24,9 @@ public class messageService {
 		for (messageDTO mto : list) {
 			mto.setNick(nick);
 			//현재 사용자가 해당 room에서 안읽은 메세지의 갯수를 가져온다.
-			int unread = msMapper.count_unread(mto);
+			int unread = msMapper.countUnread(mto);
 			//현재 사용자가 메세지를 주고 받는 상대 profile을 가져온다.
-			String profile = msMapper.get_other_profile(mto);
+			String profile = msMapper.getOtherProfile(mto);
 			//안읽은 메세지 갯수를 mto에 set한다.
 			mto.setUnread(unread);
 			//메세지 상대의 프로필 사진을 mto에 set 한다.

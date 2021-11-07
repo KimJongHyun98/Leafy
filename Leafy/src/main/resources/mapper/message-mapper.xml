@@ -3,7 +3,70 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.plant.mapper.MessageMapper">
-	<select id="message_list" parameterType="com.plant.dto.messageDTO" resultType="com.plant.dto.messageDTO">
-	
-	</select>
+<select id="messageList" parameterType="com.plant.dto.messageDTO" resultType="com.plant.dto.messageDTO">
+	select no, room, send_nick, recv_nick, to_date(m.send_time, 'YYYY-MM-DD HH24:MI') send_time, read_time, content, read_chk
+	from direct_message 
+	where no in (select max(no) from message group by room) and (send_nick = #{nick} or recv_nick=#{nick}) 
+	order by no desc;	
+</select>
+<select id="getOtherProfile" parameterType="com.plant.dto.messageDTO" resultType="String">
+	select nickname from member
+	<choose>
+		<when test="send_nick == nickname">
+			where nick = ${recv_nick}
+		</when>
+		<otherwise>
+			where nick = #{send_nick}
+		</otherwise>
+	</choose> 
+</select>
+<select id="roomContentList" parameterType="com.plant.dto.messageDTO" resultType="com.plant.dto.messageDTO">
+	select m.room, m.send_nick, m.recv_nick, to_date(m.send_time, 'YYYY-MM-DD HH24:MI') send_time, m.read_time, m.content, m.read_chk, m.nickname 
+	from direct_message m left outer join member e
+	on m.send_nick = e.nickname
+	<choose>
+		<when test="room != 0">
+			where room=#{room}
+		</when>
+		<otherwise>
+			where (recv_nick = #{recv_nick} and send_nick = #{nick}) or (send_nick = #{recv_nick} and recv_nick = #{nick})
+		</otherwise>
+	</choose> 	
+</select>
+
+<update id="messageReadChk" parameterType="com.plant.dto.messageDTO">
+	update direct_message set read_chk=1
+	<choose>
+		<when test="room != 0">
+			where room=#{room} and read_chk=0 and recv_nick=#{nick}
+		</when>
+		<otherwise>
+			where send_nick=#{recv_nick} and read_chk=0 and recv_nick=#{nick}
+		</otherwise>
+	</choose>
+</update>
+
+<insert id="messageSendInlist" parameterType="com.plant.dto.messageDTO">
+	<choose>
+		<when test="room != 0">
+			insert into message values(0, #{room}, #{send_nick}, #{recv_nick}, sysdate, sysdate, #content{content}, 0);
+		</when>
+		<otherwise>
+			insert into message values(0, #{room}, #{send_nick}, #{recv_nick}, sysdate, sysdate, #content{content}, 0);
+		</otherwise>
+	</choose>
+</insert>
+<select id="maxRoom" parameterType="com.plant.dto.messageDTO" resultType="Int">
+	select max(room) from direct_message
+</select>
+
+<select id="existChat" parameterType="com.plant.dto.messageDTO" resultType="Int">
+	select count(no) from message 
+	where (recv_nick = #{recv_nick} and send_nick=#{send_nick}) or (send_nick = #{recv_nick} and recv_nick=#{send_nick})
+</select>
+<select id="selectRoom" parameterType="com.pland.dto.messageDTO" resultType="String">
+	select room from message
+	where (recv_nick = #{recv_nick} and send_nick=#{send_nick}) or (send_nick = #{recv_nick} and recv_nick=#{send_nick}) 
+	limit 0,1
+</select>
 </mapper>
