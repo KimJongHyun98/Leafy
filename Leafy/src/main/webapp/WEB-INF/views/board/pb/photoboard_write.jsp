@@ -7,7 +7,6 @@
 <meta charset="UTF-8">
 <title>포토게시판 글작성 페이지</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="/resource/ckeditor/ckeditor.js"></script>
 <style>
     /* hotpink 색상으로border 잡힌 것은 임시 작업 영역 표시한 것, 추후 삭제 필수  */
     /* 기본 베이스 */
@@ -78,6 +77,10 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        
+        /* 임시 */
+        height: 2000px;
+        
     }
 
     /* 배경 이미지 */
@@ -134,40 +137,6 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
-	/* 글쓰기 부분*/
-	.frm_write_PhotoBoard{
-		margin: 10px auto;
-		width: 1200px;
-		box-sizing: border-box;
-	}
-	.pb_write_container{
-		margin-top: 10px;
-		box-sizing: border-box;
-		width: 1200px;
-	}
-	.pb_write_container p input{
-		font-size: 12px;
-	}
-	input {
-		box-sizing: border-box;
-		border: none;
-		width: 1198px;
-		font-size: 35px;
-	}
-	.content {
-		box-sizing: border-box;
-		border: none;
-		resize: none;
-		width: 1198px;
-		height: 1000px;
-		font-size: 12px;
-	}
-	.btn_register{
-		font-size: 15px;
-		text-align: center;
-		background-color: #639578;
-	}
-    
 </style>
 </head>
 
@@ -197,21 +166,6 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-		<form action="photoBoardWrite.do" class="frm_write_PhotoBoard" method="post" enctype="multipart/form-data">
-			<div class="pb_write_container">
- 				<input type="text" name="pb_title" placeholder="제목을 입력해주세요">
-				<hr>
-				<textarea placeholder="게시글을 입력해주세요" class="ckeditor" name="pb_content"></textarea>
-				<hr>
-				<p>
-					<input type="file" name="file">
-				</p>
-				<p><input type="file" name="file"></p>
-				<p><input type="file" name="file"></p>
-				<p><input type="file" name="file"></p>
-			</div>
-			<button class="btn_register">등록</button>
-		</form>
     </section>
 
     <footer>

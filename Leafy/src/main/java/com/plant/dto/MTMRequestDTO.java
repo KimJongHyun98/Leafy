@@ -10,13 +10,15 @@ public class MTMRequestDTO {
 	private String mtm_request_content;
 	private String mtm_request_addfile_url;
 	private int mtm_request_status;
-	private int mno;
+	
 	
 	public MTMRequestDTO() {
 		super();
 	}
+	
+	
 	public MTMRequestDTO(String id, String mtm_request_date, String mtm_request_title, String mtm_request_content,
-			String mtm_request_addfile_url, int mtm_request_status, int mno) {
+			String mtm_request_addfile_url, int mtm_request_status) {
 		super();
 		this.id = id;
 		this.mtm_request_date = mtm_request_date;
@@ -24,13 +26,6 @@ public class MTMRequestDTO {
 		this.mtm_request_content = mtm_request_content;
 		this.mtm_request_addfile_url = mtm_request_addfile_url;
 		this.mtm_request_status = mtm_request_status;
-		this.mno = mno;
-	}
-	@Override
-	public String toString() {
-		return "MTMRequestDTO [id=" + id + ", mtm_request_date=" + mtm_request_date + ", mtm_request_title="
-				+ mtm_request_title + ", mtm_request_content=" + mtm_request_content + ", mtm_request_addfile_url="
-				+ mtm_request_addfile_url + ", mtm_request_status=" + mtm_request_status + ", mno=" + mno + "]";
 	}
 	public String getId() {
 		return id;
@@ -67,12 +62,6 @@ public class MTMRequestDTO {
 	}
 	public void setMtm_request_status(int mtm_request_status) {
 		this.mtm_request_status = mtm_request_status;
-	}
-	public int getMno() {
-		return mno;
-	}
-	public void setMno(int mno) {
-		this.mno = mno;
 	}
 	
 	

@@ -4,42 +4,45 @@ import org.apache.ibatis.type.Alias;
 
 @Alias("tBoard") // 팁 게시판 DTO
 public class TBoardDTO {
-	private int tno;
+	private int tb_no;
 	private String id;
-	private String tip_title;
-	private String tip_content;
-	private String tip_date;
-	private String tip_addfile_url;
-	private int tip_recommand;
-	private int tip_visit;
-	private int tip_comment;
+	private String tb_title;
+	private String tb_content;
+	private String tb_date;
+	private String tb_addfile_url;
+	private int tb_recommand;
+	private int tb_visit;
+	private int tb_comment;
 	
 	public TBoardDTO() {
 	}
-	public TBoardDTO(int tno, String id, String tip_title, String tip_content, String tip_date, String tip_addfile_url,
-			int tip_recommand, int tip_visit, int tip_comment) {
+	
+	public TBoardDTO(int tb_no, String id, String tb_title, String tb_content, String tb_date, String tb_addfile_url,
+			int tb_recommand, int tb_visit, int tb_comment) {
 		super();
-		this.tno = tno;
+		this.tb_no = tb_no;
 		this.id = id;
-		this.tip_title = tip_title;
-		this.tip_content = tip_content;
-		this.tip_date = tip_date;
-		this.tip_addfile_url = tip_addfile_url;
-		this.tip_recommand = tip_recommand;
-		this.tip_visit = tip_visit;
-		this.tip_comment = tip_comment;
+		this.tb_title = tb_title;
+		this.tb_content = tb_content;
+		this.tb_date = tb_date;
+		this.tb_addfile_url = tb_addfile_url;
+		this.tb_recommand = tb_recommand;
+		this.tb_visit = tb_visit;
+		this.tb_comment = tb_comment;
 	}
+	
 	@Override
 	public String toString() {
-		return "TBoardDTO [tno=" + tno + ", id=" + id + ", tip_title=" + tip_title + ", tip_content=" + tip_content
-				+ ", tip_date=" + tip_date + ", tip_addfile_url=" + tip_addfile_url + ", tip_recommand=" + tip_recommand
-				+ ", tip_visit=" + tip_visit + ", tip_comment=" + tip_comment + "]";
+		return "TBoardDTO [tb_no=" + tb_no + ", id=" + id + ", tb_title=" + tb_title + ", tb_content=" + tb_content
+				+ ", tb_date=" + tb_date + ", tb_addfile_url=" + tb_addfile_url + ", tb_recommand=" + tb_recommand
+				+ ", tb_visit=" + tb_visit + ", tb_comment=" + tb_comment + "]";
 	}
-	public int getTno() {
-		return tno;
+	
+	public int getTb_no() {
+		return tb_no;
 	}
-	public void setTno(int tno) {
-		this.tno = tno;
+	public void setTb_no(int tb_no) {
+		this.tb_no = tb_no;
 	}
 	public String getId() {
 		return id;
@@ -47,50 +50,48 @@ public class TBoardDTO {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getTip_title() {
-		return tip_title;
+	public String getTb_title() {
+		return tb_title;
 	}
-	public void setTip_title(String tip_title) {
-		this.tip_title = tip_title;
+	public void setTb_title(String tb_title) {
+		this.tb_title = tb_title;
 	}
-	public String getTip_content() {
-		return tip_content;
+	public String getTb_content() {
+		return tb_content;
 	}
-	public void setTip_content(String tip_content) {
-		this.tip_content = tip_content;
+	public void setTb_content(String tb_content) {
+		this.tb_content = tb_content;
 	}
-	public String getTip_date() {
-		return tip_date;
+	public String getTb_date() {
+		return tb_date;
 	}
-	public void setTip_date(String tip_date) {
-		this.tip_date = tip_date;
+	public void setTb_date(String tb_date) {
+		this.tb_date = tb_date;
 	}
-	public String getTip_addfile_url() {
-		return tip_addfile_url;
+	public String getTb_addfile_url() {
+		return tb_addfile_url;
 	}
-	public void setTip_addfile_url(String tip_addfile_url) {
-		this.tip_addfile_url = tip_addfile_url;
+	public void setTb_addfile_url(String tb_addfile_url) {
+		this.tb_addfile_url = tb_addfile_url;
 	}
-	public int getTip_recommand() {
-		return tip_recommand;
+	public int getTb_recommand() {
+		return tb_recommand;
 	}
-	public void setTip_recommand(int tip_recommand) {
-		this.tip_recommand = tip_recommand;
+	public void setTb_recommand(int tb_recommand) {
+		this.tb_recommand = tb_recommand;
 	}
-	public int getTip_visit() {
-		return tip_visit;
+	public int getTb_visit() {
+		return tb_visit;
 	}
-	public void setTip_visit(int tip_visit) {
-		this.tip_visit = tip_visit;
+	public void setTb_visit(int tb_visit) {
+		this.tb_visit = tb_visit;
 	}
-	public int getTip_comment() {
-		return tip_comment;
+	public int getTb_comment() {
+		return tb_comment;
 	}
-	public void setTip_comment(int tip_comment) {
-		this.tip_comment = tip_comment;
+	public void setTb_comment(int tb_comment) {
+		this.tb_comment = tb_comment;
 	}
-	
-	
 	
 	
 }

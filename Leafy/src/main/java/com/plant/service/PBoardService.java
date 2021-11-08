@@ -5,8 +5,6 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 
-import com.plant.dto.PBCommentDTO;
-import com.plant.dto.PBFileDTO;
 import com.plant.dto.PBoardDTO;
 import com.plant.mapper.PBoardMapper;
 
@@ -55,21 +53,21 @@ public class PBoardService { // 포토게시판 서비스
 		return pbMapper.selectPBoardContent(pb_no);
 	}
 
-	public ArrayList<PBFileDTO> selectFileList(int pb_no) {
-		return pbMapper.selectFileList(pb_no);
-	}
+//	public ArrayList<PBFileDTO> selectFileList(int pb_no) {
+//		return pbMapper.selectFileList(pb_no);
+//	}
 
-	public PBFileDTO selectFile(int pb_fno) {
-		return pbMapper.selectFile(pb_fno);
-	}
+//	public PBFileDTO selectFile(int pb_fno) {
+//		return pbMapper.selectFile(pb_fno);
+//	}
 
-	public ArrayList<PBCommentDTO> selectPBoardComment(int pb_no) {
-		return pbMapper.selectPBoardComment(pb_no);
-	}
+//	public ArrayList<PBCommentDTO> selectPBoardComment(int pb_no) {
+//		return pbMapper.selectPBoardComment(pb_no);
+//	}
 
-	public int insertPBComment(PBCommentDTO pbcdto) {
-		return pbMapper.insertPBComment(pbcdto);
-	}
+//	public int insertPBComment(PBCommentDTO pbcdto) {
+//		return pbMapper.insertPBComment(pbcdto);
+//	}
 
 	public void deletePBComment(int pbc_no) {
 		pbMapper.deletePBComment(pbc_no);
@@ -82,11 +80,11 @@ public class PBoardService { // 포토게시판 서비스
 		return pb_no;
 	}
 
-	public void insertFileList(ArrayList<PBFileDTO> flist) {
-		for(int i=0;i<flist.size();i++) {
-			pbMapper.insertFileInfo(flist.get(i));
-		}
-	}
+//	public void insertFileList(ArrayList<PBFileDTO> flist) {
+//		for(int i=0;i<flist.size();i++) {
+//			pbMapper.insertFileInfo(flist.get(i));
+//		}
+//	}
 
 	public void updatePBoard(int pb_no, String pb_title, String pb_content) {
 		HashMap<String, Object> map = new HashMap<String, Object>();

@@ -202,38 +202,17 @@
         <div class="back"></div> <!-- 배경 이미지  -->
 		<!-- 본문 작업 부분 -->
 		<div class="fb_view_container">
-			<a href="javascript:location.href='freeBoardList.do'" style="font-size: 12px; text-decoration: none; color: red">자유게시판 목록</a><br>
-			<input type="hidden" value="${requestScope.fBoard.fb_no }" name="fb_no">
-			<p style="font-size: 30px;font-weight: bold">${requestScope.fBoard.fb_title }
-				<c:if test="${requestScope.fBoard.creator_id == sessionScope.client.id }">
-					<button type="button" class="btnUpdate">수정</button>
-					<button type="button" class="btnDelete">삭제</button>
-					<script>
-						var btnUpdate = document.querySelector(".btnUpdate");
-						btnUpdate.onclick = function(){
-							location.href = "freeBoardUpdateView.do?fb_no=${requestScope.fBoard.fb_no}";
-						}
-						var btnDelete = document.querySelector(".btnDelete");
-						btnDelete.onclick = function(){
-							location.href = "freeBoardDelete.do?fb_no=${requestScope.fBoard.fb_no}";
-						}
-					</script>
-				</c:if>
-			</p>
+			<a href="javascript:history.back()" style="font-size: 12px; text-decoration: none; color: red">자유게시판 목록</a><br>
+			<p style="font-size: 30px;font-weight: bold">${requestScope.fBoard.fb_title }</p>
 			
 			<!-- 아이디 옆 메세지 버튼 눌리면 게시글 작성자에 메세지 보낼 수 있는 기능 필요 -->
 			<form action="sendMessage.do">
-				<p style="font-size: 15px">
-					${requestScope.fBoard.creator_id }
-					<c:if test="${requestScope.fBoard.creator_id != sessionScope.client.id }">
-						<button type="button">메세지</button>
-					</c:if> 
-				</p>
+				<p style="font-size: 15px">${requestScope.fBoard.creator_id } <button type="button">메세지</button></p>
 			</form>
-			<p style="font-size: 10px">${requestScope.fBoard.fb_create_date }</p>
+			<p style="font-size: 10px">${requestScope.fBoard.fb_create_date }</p> 
 			<hr>
-
-			<div class="fb_content" style="height: 300px">${requestScope.fBoard.fb_content }</div>
+	
+			<p style="height: 500px">${requestScope.fBoard.fb_content }</p>
 
 			<p style="font-size: 20px; text-align: center">
 				<!-- 
@@ -241,49 +220,36 @@
 					조회수는 게시글 볼때마다 자동으로 올라가는 기능 필요	
 				-->
 				<a href="freeBoardRecommand.do?fb_no=${requestScope.fBoard.fb_no }" class="fb_recommand_count">
-					<img alt="추천수" src="/resource/img/recommend.png" width="20px" height="20px" name="fb_recommand_count">${requestScope.fBoard.fb_recommand_count }
+					<img alt="추천수" src="/resource/img/recommend.png" width="20px" height="20px">${requestScope.fBoard.fb_recommand_count }
 				</a>
 				<img alt="조회수" src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.fBoard.fb_visit_count }
 			</p>
 			<hr>
-			<!-- 파일 링크 출력 -->
-			<p>첨부파일 목록</p>
-			<c:forEach var="f" items="${requestScope.flist }">
-				첨부파일 : <a href="freeBoardFileDownload.do?fb_fno=${f.fb_fno }">${f.originalFileName}</a><br>
-			</c:forEach>
-			<hr>
-			<!-- 댓글 입력 -->
+	
+			<!-- 댓글 작업 부분 -->
 			<p style="font-size: 15px; font-weight: bold">댓글</p>
 			<form action="freeBoardInsertComment.do">
-			<div class="fb_insert_comment">
-				<input type="hidden" value="${requestScope.fBoard.fb_no }" name="fb_no">
-				<p>	${sessionScope.client.id } 
-					<input type="hidden" value="${sessionScope.client.id }" name="commentor_id">
-					<textarea name="fb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
-					<button>등록</button>
-				</p>
-			</div>
+			<table class="tbl_insert_comment">
+				<tr>
+					<td width = "100px">${sessionScope.fbComment.commentor_id }</td>
+					<td width = "900px"><textarea style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea></td>
+					<td width = "200px" style="text-align: center"><button>등록</button></td>
+				</tr>
+			</table>
 			</form>
-			<!-- 댓글 출력 -->
+		
 			<table class="tbl_list_comment">
 				<tr>
-					<th><input type="hidden"></th>
 					<th width="100px">작성자</th>
-					<th width="800px">내용</th>
-					<th width="300px">작성일</th>
+					<th width="900px">내용</th>
+					<th width="200px">작성일</th>
 				</tr>
 			<c:forEach var="fbc" items="${requestScope.fbclist }">
 				<tr>
-					<td><input type="hidden" name="fbc_no" value="${fbc.fbc_no}"></td>
 					<td>${fbc.commentor_id } </td>
 					<td>${fbc.fb_comment_content } </td>
-					<td>
-						${fbc.fb_comment_date } 
-					<c:if test="${fbc.commentor_id == sessionScope.client.id }">
-						<a href = "freeBoardDeleteComment.do?fbc_no=${fbc.fbc_no}&fb_no=${requestScope.fBoard.fb_no}">삭제</a>
-					</c:if>
-					</td>
-				</tr>
+					<td style="text-align: center">${fbc.fb_comment_date } </td>
+				</tr>	
 			</c:forEach>
 			</table>
 		</div>

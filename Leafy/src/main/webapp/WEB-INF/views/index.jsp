@@ -173,7 +173,7 @@
                 <div class="box2">
                     <div class="Logoin">
                         <img src="./resource/img/logo.png" alt="logo_img" class="logoimg"><br>
-						<form action="Login.do">
+						<form action="Login.do" method="post" >
 							<input type="text" class="id" name="id" placeholder="아이디입력"><br>
 							<input type="password" class="passwd" name="passwd"
 								placeholder="암호입력"><br>

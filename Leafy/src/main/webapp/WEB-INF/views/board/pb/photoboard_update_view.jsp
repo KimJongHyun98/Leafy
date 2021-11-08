@@ -169,18 +169,6 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-		<!-- 본문 작업 부분 -->
-		<div class="pb_view_container">
-			<form action="photoBoardUpdate.do" method="post">
-				<input type="text" name="pb_title" style="font-size: 30px;font-weight: bold" value="${requestScope.pbdto.pb_title }">
-				<p style="font-size: 10px">${requestScope.pbdto.pb_create_date }</p>
-				<hr>
-				<textarea name="pb_content" style="resize: none; width: 1200px; height: 500px">${requestScope.pbdto.pb_content }</textarea>
-				<button>수정</button>
-				<button type="button" onclick="history.back();">취소</button>
-				<input type="hidden" name="pb_no" value="${requestScope.pbdto.pb_no }">
-			</form>
-		</div>
     </section>
 
     <footer>

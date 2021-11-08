@@ -5,15 +5,17 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>자유게시판 상세페이지</title>
+<title>자유게시판 글수정 페이지</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <style>
-	*{
-		margin: 0px;
-		padding: 0px;
-	}
-	
-	body {
+    /* hotpink 색상으로border 잡힌 것은 임시 작업 영역 표시한 것, 추후 삭제 필수  */
+    /* 기본 베이스 */
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
       background-color: #FFFDF6;
     }
 
@@ -75,6 +77,10 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        
+        /* 임시 */
+        height: 2000px;
+        
     }
 
     /* 배경 이미지 */
@@ -87,11 +93,8 @@
         position: absolute;
         z-index: -1;
     }
-	
-	/* 본문 내용 */
-	
-	
-	/* 푸터 */
+
+    /* 푸터 */
     footer {
         display: flex;
         flex-direction: column;
@@ -135,6 +138,7 @@
         margin-bottom: 10px;
     }
 </style>
+
 </head>
 <body>
 	<header>
@@ -163,18 +167,6 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-		<!-- 본문 작업 부분 -->
-		<div class="fb_view_container">
-			<form action="freeBoardUpdate.do" method="post">
-				<input type="text" name="fb_title" style="font-size: 30px;font-weight: bold" value="${requestScope.fbdto.fb_title }">
-				<p style="font-size: 10px">${requestScope.fbdto.fb_create_date }</p>
-				<hr>
-				<textarea name="fb_content" style="resize: none; width: 1200px; height: 500px">${requestScope.fbdto.fb_content }</textarea>
-				<button>수정</button>
-				<button type="button" onclick="history.back();">취소</button>
-				<input type="hidden" name="fb_no" value="${requestScope.fbdto.fb_no }">
-			</form>
-		</div>
     </section>
 
     <footer>
@@ -189,7 +181,6 @@
             </div>
             <p>copyright (c) leafy.com all rights reserved.</p>
         </div>
-    </footer>
-	
+    </footer>	
 </body>
 </html>

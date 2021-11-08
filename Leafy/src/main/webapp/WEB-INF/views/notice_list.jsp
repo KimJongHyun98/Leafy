@@ -325,13 +325,13 @@
 							<th>날짜</th>
 							<th>조회수</th>
 						</tr>
-						<c:forEach var="n" items="${requestScope.noticelist}">
+						<c:forEach var="notice" items="${requestScope.noticelist }">
 							<tr>
-								<td>${n.nbno }</td>
-								<td>${n.id }</td>
-								<td><a href="noticeView.do?nbno=${n.nbno }">${n.notice_title}</a></td>
-								<td>${n.notice_date }</td>
-								<td>${n.notice_visit }</td>
+								<td>${notice.nbno }</td>
+								<td>${notice.id }</td>
+								<td><a href="noticeView.do?nbno=${notice.nbno }">${notice.notice_title}</a></td>
+								<td>${notice.notice_date }</td>
+								<td>${notice.notice_visit }</td>
 							</tr>
 						</c:forEach>
 						<!-- 페이징 처리 -->
@@ -351,7 +351,7 @@
 				</c:choose>
 			</c:forEach>
 			<c:if test="${requestScope.pagging.nextPageGroup }">
-				<a href="NoticeList.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }"> ＞＞ </a>			
+				<a href="NoticeListt.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }"> ＞＞ </a>			
 			</c:if>			
 		</td>
 	</tr> 

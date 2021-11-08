@@ -7,7 +7,6 @@
 <meta charset="UTF-8">
 <title>자유게시판 글작성 페이지</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="/resource/ckeditor/ckeditor.js"></script>
 <style>
 	*{
 		margin: 0px;
@@ -94,13 +93,14 @@
 		width: 1200px;
 		box-sizing: border-box;
 	}
+	.btn_container{
+		text-align: right;
+	}
 	.fb_write_container{
 		margin-top: 10px;
 		box-sizing: border-box;
 		width: 1200px;
-	}
-	.fb_write_container p input{
-		font-size: 12px;
+		border: 1px solid black;
 	}
 	input {
 		box-sizing: border-box;
@@ -117,11 +117,7 @@
 		height: 1000px;
 		font-size: 12px;
 	}
-	.btn_register{
-		font-size: 20px;
-		text-align: center;
-		background-color: #639578;
-	}
+	
     /* 푸터 */
     footer {
         display: flex;
@@ -166,24 +162,6 @@
         margin-bottom: 10px;
     }
 </style>
-<script>
-	$(function(){
-		var count = 3;
-		$("#plus").click(function(){
-			if(count == 5)
-				return;
-			count++;
-			$("form").append("<p><input type='file' name='file'></p>");
-		});
-		$("#minus").click(function(){
-			if(count == 1)
-				return;
-			count--;
-			$("form").children("p").last().remove();
-		});
-	});
-
-</script>
 </head>
 <body>
 	<header>
@@ -211,21 +189,16 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-		<form action="freeBoardWrite.do" class="frm_write_FreeBoard" method="post" enctype="multipart/form-data">
-			<div class="fb_write_container">
- 				<input type="text" name="fb_title" placeholder="제목을 입력해주세요">
-				<hr>
-				<textarea placeholder="게시글을 입력해주세요" class="ckeditor" name="fb_content"></textarea>
-				<hr>
-				<p>
-					<input type="file" name="file">
-					<button type="button" id="plus">+</button>
-					<button type="button" id="minus">-</button>
-				</p>
-				<p><input type="file" name="file"></p>
-				<p><input type="file" name="file"></p>
+		<form action="freeBoardWrite.do" class="frm_write_FreeBoard">
+			<div class="btn_container">
+				<button>파일첨부</button>
+				<button type="button">등록</button>
 			</div>
-			<button class="btn_register">등록</button>
+			<div class="fb_write_container">
+				<input type="text" name="title" placeholder="제목을 입력해주세요">
+				<hr>
+				<textarea placeholder="게시글을 입력해주세요" class="ckeditor content" name="fb_content"></textarea>
+			</div>
 		</form>
     </section>
 

@@ -22,13 +22,6 @@ public class FBCommentDTO {
 		this.fb_comment_date = fb_comment_date;
 	}
 
-	public FBCommentDTO(int fb_no, String commentor_id, String fb_comment_content) {
-		super();
-		this.fb_no = fb_no;
-		this.commentor_id = commentor_id;
-		this.fb_comment_content = fb_comment_content;
-	}
-
 	public int getFbc_no() {
 		return fbc_no;
 	}

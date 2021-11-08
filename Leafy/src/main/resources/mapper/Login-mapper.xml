@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
- <mapper namespace="com.plant.mapper.LoginMapper">
+<mapper namespace="com.plant.mapper.LoginMapper">
 
  	<select id="Login" parameterType="map" resultType="member">
  		select * from member where id = #{id} and password = #{passwd}
@@ -12,5 +12,16 @@
  		insert into member(id,password,nickname,name,pno,gender,address,phone,email,recommand_bno,phone_confirm)
  		values(#{id},#{passwd},#{nickname},#{name},#{pno},#{gender},#{address},#{phone},#{email},#{recommand_bno},#{phone_confirm})
  	</insert>
-
- </mapper>
+ 	
+ 	<!-- 아이디 중복체크 -->
+ 	<select id="idCheck" resultType="member">
+ 		select count(*) from member where id = #{id}
+ 	</select>
+ 	
+ 	<!-- 닉네임 중복체크 -->
+  	<select id="nickCheck" resultType="member">
+  		select count(*) from member where nickname = #{nickname}
+  	</select>
+ 
+ 	
+</mapper>

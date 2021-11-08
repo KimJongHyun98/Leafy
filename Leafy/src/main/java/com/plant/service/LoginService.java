@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.plant.dto.FBoardDTO;
 import com.plant.dto.MemberDTO;
+import com.plant.dto.NaverDTO;
 import com.plant.mapper.LoginMapper;
 
 @Service
@@ -29,4 +31,16 @@ public class LoginService {//로그인서비스
 		return loginmapper.insertMember(dto);	
 	}
 	
+	public int insertNaver(NaverDTO dto) {
+		return loginmapper.insertNaver(dto);
+	}
+	
+	public int nickChenk(String nickname) {
+		return loginmapper.nickCheck(nickname);
+	}
+	
+
+	
+	
+
 }

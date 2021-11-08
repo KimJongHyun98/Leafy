@@ -7,7 +7,12 @@
 <meta charset="UTF-8">
 <title>포토게시판</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+</script>
 <style>
+    /* hotpink 색상으로border 잡힌 것은 임시 작업 영역 표시한 것, 추후 삭제 필수  */
+    /* 기본 베이스 */
     * {
         margin: 0;
         padding: 0;
@@ -15,7 +20,6 @@
 
     body {
       background-color: #FFFDF6;
-      min-width: 1170px;
     }
 
 
@@ -76,6 +80,10 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        
+        /* 임시 */
+        height: 2000px;
+        
     }
 
     /* 배경 이미지 */
@@ -132,37 +140,6 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
-    .pb_list{
-    	width: 1200px;
-    }
-    .pb_list_flex_container{
-    	margin: 0px auto;
-    	display: flex;
-    	width: 960px;
-    	box-sizing: border-box;
-    	flex-flow: wrap;
-    }
-    .pb_item{
-    	margin: 0px 20px;
-    }
-    .pb_paging{
-    	text-align: center;
-    }
-    .form_container{
-    	text-align: center;
-    }
-    .most_view_list{
-    	width: 1200px;
-    }
-    .mvpb_list_flex_container{
-    	margin: 0px auto;
-    	display: flex;
-    	width: 960px;
-    	box-sizing: border-box;
-    }
-    .mvpb_item{
-		margin: 20px 20px;    
-    }
 </style>
 </head>
 <body>
@@ -192,95 +169,6 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
-		<!-- 상단 가장 조회수 많은 게시글 슬라이드 처리 -->        
-        <div class="most_view_list">
-	        <div class="mvpb_list_flex_container">
-	        <c:forEach var="mvpb" items="${requestScope.mvpbList}">
-	        	<div class="mvpb_item" style="width: 200px; height: 300px">
-		        	<a href="photoBoardView.do?pb_no=${mvpb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
-		        		no : ${mvpb.pb_no }<br>
-		        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
-		        		${mvpb.creator_id }<br>
-		        		${mvpb.pb_title }<br>
-		        		<span style="margin-left: 165px"> 
-		        		${mvpb.pb_recommand_count}
-		        		${mvpb.pb_visit_count}
-		        		</span>
-		        	</a>
-	        	</div>
-	        </c:forEach>
-	        </div>
-        </div>
-        <hr>
-        
-        <!-- 포토 게시판 전체 출력 -->
-        <div class="pb_list">
-        <div class="pb_list_flex_container">
-        <c:forEach var="pb" items="${requestScope.pbList}">
-        	<div class="pb_item" style="width: 200px; height: 300px">
-	        	<a href="photoBoardView.do?pb_no=${pb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
-	        		no : ${pb.pb_no }<br>
-<!-- 
-	        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
- -->
-         		<c:if test="${requestScope.thumbnail.pb_fno != null }">
-	        		<img src="photoBoardFileDownload.do?pb_fno=${requestScope.thumbnail.pb_fno }" width="200px" height="200px"><br>
-        		</c:if>
-        		<c:if test="${requestScope.thumbnail.pb_fno == null }">
-	        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
-        		</c:if>
-
-	        		${pb.creator_id }<br>
-	        		${pb.pb_title }<br>
-	        		<span style="margin-left: 165px">
-	        		${pb.pb_recommand_count}
-	        		${pb.pb_visit_count}
-	        		</span>
-	        		
-	        	</a>
-        	</div>
-        </c:forEach>
-        </div>
-        </div>
-        
-        <!-- 페이징 -->
-        <div class="pb_paging">
-			<c:if test="${requestScope.pagging.previousPageGroup }">
-				<a href="photoBoardList.do?pageNo=${requestScope.pagging.startPageOfPageGroup-1 }"><<</a>				
-			</c:if>
-			<c:forEach var="i" begin="${requestScope.pagging.startPageOfPageGroup }" end="${requestScope.pagging.endPageOfPageGroup }">
-				<c:choose>
-					<c:when test="${i == requestScope.pagging.currentPageNo }">
-						${i }
-					</c:when>
-					<c:otherwise>
-						<c:if test="${requestScope.count == null }">
-							<a href="photoBoardList.do?pageNo=${i }">${i }</a>
-						</c:if>
-						<c:if test="${requestScope.count != null }">
-							<a href="photoBoardSearch.do?pageNo=${i }&kind=${requestScope.kind }&search=${requestScope.search}">${i }</a>
-						</c:if>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-			<c:if test="${requestScope.pagging.nextPageGroup }">
-				<a href="photoBoardList.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }">>></a>				
-			</c:if>
-        </div>
-        <!-- 검색 기능 -->
-		<div class="form_container">
-			<form class="frm_search_PhotoBoard" action="photoBoardSearch.do">
-				<select name="kind">
-					<option value="title">제목</option>
-					<option value="title_content">제목+내용</option>
-					<option value="creator_id">작성자</option>
-				</select>
-				<input type="text" name="search" placeholder="검색어 입력">
-				<button class="btn_pb_search">검색</button>
-				<a href="photoBoardWriteView.do" class="btn_pb_write">글쓰기</a>
-			</form>
-		</div>
-        
     </section>
 
     <footer>

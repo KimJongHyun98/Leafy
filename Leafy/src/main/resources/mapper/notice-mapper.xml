@@ -3,13 +3,9 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.plant.mapper.NoticeMapper">
-<select id="selectNotice" parameterType="int" resultType="notice">
-		select n.nbno, n.id, n.notice_title, n.notice_date, n.notice_visit from (select n.*, ceil(rownum/5)  as pageno from 
+	<select id="selectNotice" parameterType="int" resultType="notice">
+		select * from (select n.*, ceil(rownum/5)  as pageno from 
 		(select * from notice_board order by nbno desc) n)
 		where pageno = #{pageno}
 	</select>
-<select id="selectNoticeCount" resultType="int">
-		select count(*) from notice_board
-	</select>
-	
 </mapper>

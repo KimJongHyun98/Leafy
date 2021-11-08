@@ -2,48 +2,6 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.plant.mapper.MTMRequestMapper">
-	<select id="selectAllMTM" parameterType="int" resultType="mtmRequest">
-		select * from (select mtm.*, ceil(rownum/5) as pageno from
-		(select * from mtm_request order by mno desc) mtm)
-		where pageno = #{pageno}
-	</select>
-	<select id="selectMTMNo" resultType="int">
-		select mtm_mno_seq.nextval from dual;
-	</select>
-	<!-- ckeditor 처리  -->
-	<insert id="insertMTM" parameterType="mtmRequest">
-		insert into mtm_request(id,mtm_request_date,mtm_request_title,mtm_request_content,mtm_request_addfile_url,mtm_request_status,mno)
-		values(#{id},sysdate,#{mtm_request_title},#{mtm_request_content},#{mtm_request_addfile_url},0,#{mno})
-	</insert>
-	<insert id="insertFileInfo" parameterType="mtmfile">
-		insert into mtm_file_list values(mtm_fno_seq.nextval,#{mno},#{id},sysdate,#{path},#{ORIGINALFILENAME})
-	</insert>
-	<!-- 처리 끝 -->
-	<insert id="insertFileOne" parameterType="mtmfile">
-		insert into mtm_file_list values(#{fno},#{mno},#{id},sysdate,#{path},#{ORIGINALFILENAME})
-	</insert>
-	<select id="selectFileNo" resultType="int">
-		select mtm_fno_seq.nextval from dual
-	</select>
-	
-	<select id="selectMTMContent" parameterType="int" resultType="mtmRequest">
-		select m.id, m.mtm_request_date,m.mtm_request_title,  m.mtm_request_content, m.mtm_request_status,m.mno
-		from mtm_request m where m.mno = #{mno} order by mno desc
-	</select>	
-	<select id="selectFileList" parameterType="int" resultType="mtmfile">
-		select * from mtm_file_list where mno = #{mno}
-	</select>
-	<select id="selectFile" parameterType="int" resultType="mtmfile">
-		select * from mtm_file_list where fno = #{fno}
-	</select>
-	<delete id="deleteMTMRequest" parameterType="int">
-		delete from mtm_request where mno = #{mno}
-	</delete>
-	<update id="updateMTMRequest" parameterType="map">
-		update mtm_request set mtm_request_title=#{mtm_request_title},mtm_request_content=#{mtm_request_content} where mno = #{mno}
-	</update>
-	<select id="selectMTMRequestCount" resultType="int">
-		select count(*) from mtm_request
-	</select>
+<mapper namespace="com.plant.mapper.CustomerServiceMapper">
+
 </mapper>

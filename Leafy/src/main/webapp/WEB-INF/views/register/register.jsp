@@ -37,7 +37,7 @@
 
              //버튼을 클릭 했을때 아이디를 입력했는지 체크
             var id = document.getElementById("id");
-            var idcheck = document.getElementById("idcheck");
+            var idCheck = document.getElementById("idCheck");
             var id1 = document.getElementById("id1");
 
             var passwd = document.querySelector(".passwd");
@@ -56,13 +56,27 @@
             
             var go = document.getElementById("go");
 
-             idcheck.onclick = function () {
-                if (id.value.length < 6) {
-                    id1.innerHTML=("아이디는 6글자 이상 입력하세요");
-                } else {
-                    id1.innerHTML = ("통과");
-                }
+
+            
+             idCheck.onclick = function () {
+            	 $.ajax({
+           		  	url : "/register/idCheck",
+            		 	dataType: "JSON",
+            		 	data : {"id" : $(#id).val()},
+            		 	success : funtion(data) {
+            		 		if (id.value.length < 6) {
+            	                    id1.innerHTML=("아이디는 6글자 이상 입력하세요");  		 		
+             					if(data ==1){
+           		  				id1.innerHTML = "중복된 아이디입니다.";
+          		   				}else if (data == 0){
+         		    			$("#id").attr("value","Y");
+       		      				id1.innerHTML = "사용 가능한 아이디입니다.";
+       		 	     			}
+            		 	}              
             }
+             
+             
+             
 
             // 비밀 번호 입력시 마다 체크 
 
@@ -103,6 +117,8 @@
             
             // 회원가입 버튼 눌렀을때 안된것 체크 
             var nickname = document.querySelector(".nickname");//닉네임
+            var nickCheck = document.getElementById("nickCheck");
+            var nickname1 = document.getElementById("nickname1");
             
             var name = document.querySelector(".name");//이름
             
@@ -119,11 +135,28 @@
             var pon2 = document.querySelector(".pon_2");// 0000
             var pon3 = document.querySelector(".pon_3");//0000
             
+            var nickc = 
 				
             $(".checkbox1_1").prop("checked");
             $(".checkbox2_1").prop("checked");
             
             var data ="";
+            
+            nickCheck.onclick = function () {
+               $.ajax({
+          		  	url : "/register/nickCheck",
+           		 	dataType: "JSON",
+           		 	data : {"nickname" : $(#nickname).val()},
+           		 	success : funtion(data) {
+            				if(data ==1){
+          		  			nickname1.innerHTML = "중복된 닉네임입니다.";
+         		   		}else if (data == 0){
+        		    		$("#nickCheck").attr("value","Y");
+      		      			nickname1.innerHTML = "사용 가능한 닉네임입니다.";
+      		 	     		}
+     		       	}          	           	   
+               })
+            }
             
             //가입하기 눌렀을때 입력한내용 확인 후 작동 
             go.onclick = function () {
@@ -370,7 +403,7 @@ margin-top: 60px;
 		<form action="memverRegister.do" method="post" name="fm" id="fm">
 			<p>
 				<span>아이디</span> <input type="text" name="id" class="id" id="id" placeholder="6자이상">
-				<button type="button" id="idcheck" name="idcheck">중복확인</button>
+				<button type="button" id="idCheck" name="idCheck">중복확인</button>
 			</p>
  			<div id="id1"></div>
 			<p>
@@ -386,6 +419,7 @@ margin-top: 60px;
 			<div class="passcheck2"></div>
 			<p>
 				<span>닉네임</span><input type="text" name="nickname" class="nickname">
+				<button type="button" id="nickCheck" name="nickCheck">중복확인</button>
 			</p>
 			<div class="nickname1"></div>
 			<p>
