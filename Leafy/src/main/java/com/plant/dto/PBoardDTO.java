@@ -11,12 +11,27 @@ public class PBoardDTO {
 	private String pb_content;
 	private String pb_create_date;
 	private String pb_update_date;
+	private String pb_thumbnail_fno;
 	private int pb_recommand_count;
 	private int pb_visit_count; 
 
 	public PBoardDTO() {
 	}
 
+	public PBoardDTO(String creator_id, int pb_no, String pb_title, String pb_content, String pb_create_date,
+			String pb_update_date, String pb_thumbnail_fno, int pb_recommand_count, int pb_visit_count) {
+		super();
+		this.creator_id = creator_id;
+		this.pb_no = pb_no;
+		this.pb_title = pb_title;
+		this.pb_content = pb_content;
+		this.pb_create_date = pb_create_date;
+		this.pb_update_date = pb_update_date;
+		this.pb_thumbnail_fno = pb_thumbnail_fno;
+		this.pb_recommand_count = pb_recommand_count;
+		this.pb_visit_count = pb_visit_count;
+	}
+	
 	public PBoardDTO(String creator_id, int pb_no, String pb_title, String pb_content, String pb_create_date,
 			String pb_update_date, int pb_recommand_count, int pb_visit_count) {
 		super();
@@ -78,6 +93,14 @@ public class PBoardDTO {
 		this.pb_update_date = pb_update_date;
 	}
 
+	public String getPb_thumbnail_fno() {
+		return pb_thumbnail_fno;
+	}
+
+	public void setPb_thumbnail_fno(String pb_thumbnail_fno) {
+		this.pb_thumbnail_fno = pb_thumbnail_fno;
+	}
+
 	public int getPb_recommand_count() {
 		return pb_recommand_count;
 	}
@@ -98,7 +121,9 @@ public class PBoardDTO {
 	public String toString() {
 		return "PBoardDTO [creator_id=" + creator_id + ", pb_no=" + pb_no + ", pb_title=" + pb_title + ", pb_content="
 				+ pb_content + ", pb_create_date=" + pb_create_date + ", pb_update_date=" + pb_update_date
-				+ ", pb_recommand_count=" + pb_recommand_count + ", pb_visit_count=" + pb_visit_count + "]";
+				+ ", pb_thumbnail_fno=" + pb_thumbnail_fno + ", pb_recommand_count=" + pb_recommand_count
+				+ ", pb_visit_count=" + pb_visit_count + "]";
 	}
+
 
 }

@@ -2,6 +2,7 @@ package com.plant;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,14 +22,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,7 +65,6 @@ import com.plant.service.PBoardService;
 import com.plant.service.PCBoardService;
 import com.plant.service.TBoardService;
 import com.plant.service.messageService;
-import com.sun.java.util.jar.pack.Package.File;
 
 @Controller
 public class MainController { // 메인컨트롤러
@@ -98,22 +97,22 @@ public class MainController { // 메인컨트롤러
 	}
 	
 	// 로그인 페이지 임시처리 10/25
-	@RequestMapping("login.do")
-	public String login(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String id = request.getParameter("id"); 
-		String passwd = request.getParameter("passwd");
-		
-		MemberDTO mdto = memberService.login(id,passwd);
-		
-		if(mdto == null) {
-			response.setContentType("text/html;charset=utf-8");
-			response.getWriter().write("<script>alert('아이디 비밀번호 확인하세요');history.back();</script>");
-			return null;
-		}else {
-			request.getSession().setAttribute("client", mdto);
-			return photoBoardList(request, request.getSession());
-		}
-	}
+//	@RequestMapping("login.do")
+//	public String login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//		String id = request.getParameter("id"); 
+//		String passwd = request.getParameter("passwd");
+//		
+//		MemberDTO mdto = memberService.login(id,passwd);
+//		
+//		if(mdto == null) {
+//			response.setContentType("text/html;charset=utf-8");
+//			response.getWriter().write("<script>alert('아이디 비밀번호 확인하세요');history.back();</script>");
+//			return null;
+//		}else {
+//			request.getSession().setAttribute("client", mdto);
+//			return photoBoardList(request, request.getSession());
+//		}
+//	}
 	
 	// 자유게시판 페이지 전체 출력 및 페이징 처리 10/20
 	@RequestMapping("freeBoardList.do")
@@ -146,11 +145,6 @@ public class MainController { // 메인컨트롤러
 		ArrayList<PBoardDTO> pbList = pBoardService.selectAllPBoard(currentPageNo);
 		request.setAttribute("pbList", pbList);
 		
-//		// 썸네일 이미지 처리
-//		int pb_fno = Integer.parseInt(request.getParameter("pb_fno"));
-//		PBFileDTO pbfdto = pBoardService.selectPBThumbnail(pb_fno);
-//		request.setAttribute("thumbnail", pbfdto);
-		
 		// 페이징 처리
 		int count = pBoardService.selectPBoardCount();
 		PaggingVO vo = new PaggingVO(count, currentPageNo, 12, 5);
@@ -161,7 +155,7 @@ public class MainController { // 메인컨트롤러
 	
 	// 자유게시판 검색 및 페이징 처리 10/21
 	@RequestMapping("freeBoardSearch.do")
-	public String freeBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+	public String freeBoardSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String kind = request.getParameter("kind");
 		System.out.println(kind);
 		String search = request.getParameter("search");
@@ -185,7 +179,7 @@ public class MainController { // 메인컨트롤러
 
 	// 포토게시판 검색 및 페이징 처리 10/29
 	@RequestMapping("photoBoardSearch.do")
-	public String photoBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+	public String photoBoardSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String kind = request.getParameter("kind");
 		String search = request.getParameter("search");
 		String pageNo = request.getParameter("pageNo");
@@ -207,7 +201,13 @@ public class MainController { // 메인컨트롤러
 
 	// 자유게시판 상세 게시글 10/25
 	@RequestMapping("freeBoardView.do")
-	public String freeBoardView(HttpServletRequest request, HttpSession session) {
+	public String freeBoardView(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
+		if(mdto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('로그인 후 이용이 가능합니다.');history.back();</script>");
+			return null;
+		}
 		// 상세 게시글 출력
 		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
 		fBoardService.addFBoardCount(fb_no);
@@ -231,7 +231,14 @@ public class MainController { // 메인컨트롤러
 	
 	// 포토게시판 상세 게시글 10/29
 	@RequestMapping("photoBoardView.do")
-	public String photoBoardView(HttpServletRequest request, HttpSession session) {
+	public String photoBoardView(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
+		if(mdto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('로그인 후 이용이 가능합니다.');history.back();</script>");
+			return null;
+		}
+		
 		// 상세 게시글 출력
 		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
 		pBoardService.addPBoardCount(pb_no);
@@ -387,28 +394,45 @@ public class MainController { // 메인컨트롤러
 	
 	// 자유게시판 게시글 추천올리는 기능 10/21 미완성
 	@RequestMapping("freeBoardRecommand.do")
-	public String freeBoardRecommand(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, JSONException {
+	public String freeBoardRecommand(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 		int fb_no = Integer.parseInt(request.getParameter("fb_no"));
-		String id = ((MemberDTO)session.getAttribute("client")).getId();
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
 		response.setContentType("text/html;charset=utf-8");
 		JSONObject obj = new JSONObject();
-		if(id == null) {
+		if(mdto == null) {
 			obj.put("msg", "로그인하셔야 이용하실수 있습니다.");
 			obj.put("code", 400);
 			response.getWriter().write(obj.toString());
 			return null;
 		}
-		boolean result = fBoardService.insertFBoardRecommand(fb_no, id);
+		boolean result = fBoardService.insertFBoardRecommand(mdto.getId(), fb_no);
 		String msg = result ? "게시글을 추천하였습니다." : "게시글 추천을 취소하였습니다.";
 		obj.put("msg",msg);
 		obj.put("code",200);
 		response.getWriter().write(obj.toString());
-
 		return null;
 	}
 
 	// 포토게시판 게시글 추천올리는 기능 아직 작업안함
-
+	@RequestMapping("photoBoardRecommand.do")
+	public String photoBoardRecommand(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
+		response.setContentType("text/html;charset=utf-8");
+		JSONObject obj = new JSONObject();
+		if(mdto == null) {
+			obj.put("msg", "로그인하셔야 이용하실수 있습니다.");
+			obj.put("code", 400);
+			response.getWriter().write(obj.toString());
+			return null;
+		}
+		boolean result = pBoardService.insertPBoardRecommand(mdto.getId(), pb_no);
+		String msg = result ? "게시글을 추천하였습니다." : "게시글 추천을 취소하였습니다.";
+		obj.put("msg",msg);
+		obj.put("code",200);
+		response.getWriter().write(obj.toString());
+		return null;
+	}
 	
 	// 자유게시판 글쓰기 페이지 이동 10/20
 	@RequestMapping("freeBoardWriteView.do")
@@ -424,10 +448,17 @@ public class MainController { // 메인컨트롤러
 	
 	// 자유게시판 글쓰기 페이지 10/25
 	@RequestMapping("freeBoardWrite.do")
-	public String freeBoardWrite(MultipartHttpServletRequest request, HttpSession session) throws UnsupportedEncodingException {
+	public String freeBoardWrite(MultipartHttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
+		if(mdto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('로그인 후 이용이 가능합니다.');history.back();</script>");
+			return null;
+		}
 		String fb_title = request.getParameter("fb_title");
 		String fb_content = request.getParameter("fb_content");
 		String creator_id = ((MemberDTO)session.getAttribute("client")).getId();
+		
 		int fb_no = fBoardService.insertFBoard(new FBoardDTO(creator_id, 0, fb_title, fb_content, null, null, 0, 0));
 		// 업로드할 파일 목록
 		List<MultipartFile> fileList = request.getFiles("file");
@@ -470,10 +501,18 @@ public class MainController { // 메인컨트롤러
 
 	// 포토게시판 글쓰기 페이지 10/29
 	@RequestMapping("photoBoardWrite.do")
-	public String photoBoardWrite(MultipartHttpServletRequest request, HttpSession session) throws UnsupportedEncodingException {
+	public String photoBoardWrite(MultipartHttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		MemberDTO mdto = (MemberDTO) request.getSession().getAttribute("client");
+		if(mdto == null) {
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().write("<script>alert('로그인 후 이용이 가능합니다.');history.back();</script>");
+			return null;
+		}
+		
 		String creator_id = ((MemberDTO)session.getAttribute("client")).getId();
 		String pb_title = request.getParameter("pb_title");
 		String pb_content = request.getParameter("pb_content");
+		
 		int pb_no = pBoardService.insertPBoard(new PBoardDTO(creator_id, 0, pb_title, pb_content, null, null, 0, 0));
 		// 업로드할 파일 목록
 		List<MultipartFile> fileList = request.getFiles("file");
@@ -572,9 +611,10 @@ public class MainController { // 메인컨트롤러
 	@RequestMapping("photoBoardDelete.do")
 	public String photoBoardDelete(HttpServletRequest request) {
 		int pb_no = Integer.parseInt(request.getParameter("pb_no"));
-		PBoardService.deletePBoard(pb_no);
+		pBoardService.deletePBoard(pb_no);
 		return "redirect:photoBoardList.do";
 	}
+
 	
 	// 안태진님 기능 부분(가격비교 게시판 / 회사소개)
 	// 21/10/21 안태진
@@ -595,7 +635,7 @@ public class MainController { // 메인컨트롤러
 			}
 			//더보기 옵션
 			@RequestMapping(value = "seeMore.do")
-			public String seeMore(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+			public String seeMore(HttpServletRequest request, HttpServletResponse response) throws IOException {
 				//ajax로 받아온 링크 객체에 저장
 				String link = request.getParameter("link");
 				//링크 확인용
@@ -621,7 +661,7 @@ public class MainController { // 메인컨트롤러
 			public static final String WEB_DRIVER_ID = "webdriver.chrome.driver"; 
 			public static final String WEB_DRIVER_PATH = "/Users/taejin-an/Downloads/chromedriver";
 			//리뷰정보를 가져오는 크롤링 메서드
-			private JSONArray seeMoreReview(String link) throws JSONException{
+			private JSONArray seeMoreReview(String link) {
 				try {
 					System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
 				} catch (Exception e) {
@@ -760,8 +800,6 @@ public class MainController { // 메인컨트롤러
 		            e.printStackTrace();
 		        } catch (IOException e) {
 		            e.printStackTrace();
-		        } catch (JSONException e) {
-		            e.printStackTrace();
 		        } finally {
 
 		        }
@@ -827,7 +865,7 @@ public class MainController { // 메인컨트롤러
 	}
 	// 팁 게시판 검색
 		@RequestMapping("tipBoardSearch.do")
-		public String freeBoardSearch(HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+		public String tipBoardSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			String kind = request.getParameter("kind");
 			System.out.println(kind);
 			String search = request.getParameter("search");
@@ -850,7 +888,7 @@ public class MainController { // 메인컨트롤러
 		
 		// 팁 게시판 상세 페이지
 		@RequestMapping("tipBoardView.do")
-		public String freeBoardView(HttpServletRequest request, HttpSession session) {
+		public String tipBoardView(HttpServletRequest request, HttpSession session) {
 			int tno = Integer.parseInt(request.getParameter("tno"));
 			tBoardService.addTipBoardCount(tno);
 			TBoardDTO dto = tBoardService.selectTipBoardContent(tno);
@@ -865,7 +903,7 @@ public class MainController { // 메인컨트롤러
 		
 		// 팁 게시판 추천
 		@RequestMapping("tipRecommand.do")
-		public String tipRecommand(HttpServletRequest request, HttpServletResponse response) throws IOException, JSONException {
+		public String tipRecommand(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			int tno = Integer.parseInt(request.getParameter("tno"));
 			MemberDTO dto = (MemberDTO) request.getSession().getAttribute("client");
 			response.setContentType("text/html;charset=utf-8");

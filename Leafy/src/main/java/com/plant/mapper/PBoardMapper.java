@@ -29,5 +29,6 @@ public interface PBoardMapper {	// 포토게시판 매퍼
 	int updatePBoard(HashMap<String, Object> map);
 	int deletePBoard(int pb_no);
 	PBFileDTO selectFile(int pb_fno);
-//	PBFileDTO selectPBThumbnail(int pb_fno);
+	int insertPBoardRecommand(HashMap<String, Object> map);
+	int deletePBoardRecommand(HashMap<String, Object> map);
 }

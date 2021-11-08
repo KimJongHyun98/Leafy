@@ -75,6 +75,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -98,16 +99,50 @@
 		width: 1200px;
 		margin: 0 auto;
 	}
-	.tbl_insert_comment{
-		margin-top: 30px;
-	}
-	.tbl_list_comment{
-		margin-top: 30px;
-	}
 	.fb_recommand_count{
 		text-decoration: none;
 		color: black;
 	}
+	
+    .fb_insert_comment{
+    	margin-bottom: 10px;
+    	display: flex;
+    	flex-direction: column;
+    	position: relative;
+    	box-sizing: border-box;
+    }
+    .fb_comment_list{
+    	display: flex;
+    	justify-content: center;
+    }
+    .fb_comment_list > span{
+    	padding: 10px 60px 10px 10px;
+    	font-size: 1.5em;
+    	color: green;
+    }
+    .fb_comment_list > textarea{
+    	resize: none;
+    	width: 900px;
+    	height: 50px;
+    	font-size: 12px;
+    }
+    .fb_comment_list > .btn_fbc_register{
+		font-size: 15px;
+		margin-left: 10px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;
+    }
+    
+    .tbl_list_comment{
+    	border-spacing: 10px;
+    	text-align: center;
+    }
+    .tbl_list_comment > td{
+    	text-align: center;
+    	font-size: 14px;
+    }
+	
 	
 	/* 푸터 */
     footer {
@@ -152,10 +187,21 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
+    
+    .fb_content{
+    	margin-top: 50px;
+    	min-height: 300px;
+    }
+    .btnUpdate, .btnDelete{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;    
+    }    
 </style>
 <script type="text/javascript">
 	$(function(){
-		$(".fb_recommand_count").click(function(e){
+		$(".fb_recommand").click(function(e){
 			e.preventDefault();
 			$.ajax({
 				url : $(this).attr("href"),
@@ -176,7 +222,6 @@
 <body>
 	<header>
         <div class="header_box">
-
             <!-- 로그인/회원가입, 로그아웃/마이페이지 -->
             <div class="top_box">
                 <button type="submit">로그인</button>
@@ -211,11 +256,20 @@
 					<script>
 						var btnUpdate = document.querySelector(".btnUpdate");
 						btnUpdate.onclick = function(){
-							location.href = "freeBoardUpdateView.do?fb_no=${requestScope.fBoard.fb_no}";
+							var chk_confirm = confirm("수정 페이지로 이동하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "freeBoardUpdateView.do?fb_no=${requestScope.fBoard.fb_no}";
+							} 
 						}
 						var btnDelete = document.querySelector(".btnDelete");
 						btnDelete.onclick = function(){
-							location.href = "freeBoardDelete.do?fb_no=${requestScope.fBoard.fb_no}";
+							var chk_confirm = confirm("해당 게시글을 삭제하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "freeBoardDelete.do?fb_no=${requestScope.fBoard.fb_no}";
+							} else {
+								alert("게시글 삭제가 취소되었습니다.");
+								return false;
+							}
 						}
 					</script>
 				</c:if>
@@ -240,10 +294,10 @@
 					추천수 누르면 추천 올라가는 기능 필요 
 					조회수는 게시글 볼때마다 자동으로 올라가는 기능 필요	
 				-->
-				<a href="freeBoardRecommand.do?fb_no=${requestScope.fBoard.fb_no }" class="fb_recommand_count">
-					<img alt="추천수" src="/resource/img/recommend.png" width="20px" height="20px" name="fb_recommand_count">${requestScope.fBoard.fb_recommand_count }
+				<a href="freeBoardRecommand.do?fb_no=${requestScope.fBoard.fb_no }" class="fb_recommand">
+					<img src="/resource/img/recommend.png" width="20px" height="20px">${requestScope.fBoard.fb_recommand_count }
 				</a>
-				<img alt="조회수" src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.fBoard.fb_visit_count }
+				<img src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.fBoard.fb_visit_count }
 			</p>
 			<hr>
 			<!-- 파일 링크 출력 -->
@@ -257,11 +311,29 @@
 			<form action="freeBoardInsertComment.do">
 			<div class="fb_insert_comment">
 				<input type="hidden" value="${requestScope.fBoard.fb_no }" name="fb_no">
-				<p>	${sessionScope.client.id } 
+				<div class="fb_comment_list">
+					<span>${sessionScope.client.id }</span> 
 					<input type="hidden" value="${sessionScope.client.id }" name="commentor_id">
-					<textarea name="fb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
-					<button>등록</button>
-				</p>
+					<textarea id="fb_comment_content" name="fb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
+					<button class="btn_fbc_register">등록</button>
+					<script>
+						var btnRegisterCmt = document.querySelector(".btn_fbc_register");
+						btnRegisterCmt.onclick = function(){
+							if($('#fb_comment_content').val() == ''){
+								alert("댓글을 입력하세요");
+								return false;
+							} else {
+								var chk_confirm = confirm("댓글 등록을 하시겠습니까?");
+								if(chk_confirm == false){
+									alert("댓글 등록이 취소되었습니다.");
+									return false;
+								} else {
+									alert("댓글 등록이 완료되었습니다!");
+								}
+							}
+						}
+					</script>					
+				</div>
 			</div>
 			</form>
 			<!-- 댓글 출력 -->
@@ -280,7 +352,7 @@
 					<td>
 						${fbc.fb_comment_date } 
 					<c:if test="${fbc.commentor_id == sessionScope.client.id }">
-						<a href = "freeBoardDeleteComment.do?fbc_no=${fbc.fbc_no}&fb_no=${requestScope.fBoard.fb_no}">삭제</a>
+						<a href = "freeBoardDeleteComment.do?fbc_no=${fbc.fbc_no}&fb_no=${requestScope.fBoard.fb_no}" style="text-decoration: none; color: red; font-size: 12px">삭제</a>
 					</c:if>
 					</td>
 				</tr>

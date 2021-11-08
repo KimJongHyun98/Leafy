@@ -47,7 +47,16 @@
 	</select>
 	<!-- 상세 게시글 보기 -->
 	<select id="selectFBoardContent" parameterType="int" resultType="fBoard">
-		SELECT * FROM FREE_BOARD WHERE FB_NO = #{fb_no}
+		SELECT 
+			FB.CREATOR_ID
+			,FB.FB_NO
+			,FB.FB_TITLE
+			,FB.FB_CONTENT
+			,FB.FB_CREATE_DATE
+			,FB.FB_UPDATE_DATE
+			,(SELECT COUNT(*) FROM FB_RECOMMEND FBR WHERE FB.FB_NO = FBR.FB_NO) AS FB_RECOMMAND_COUNT
+			,FB.FB_VISIT_COUNT
+		FROM FREE_BOARD FB WHERE FB_NO = #{fb_no} ORDER BY FB_NO DESC
 	</select>
 	<!-- 조회수 올리는 기능 -->
 	<update id="addFBoardCount" parameterType="int">
@@ -55,7 +64,7 @@
 	</update>
 	<!-- 댓글 보기 기능 -->
 	<select id="selectFBoardComment" parameterType="int" resultType="fbComment">
-		SELECT * FROM FB_COMMENT WHERE FB_NO = #{fb_no}
+		SELECT * FROM FB_COMMENT WHERE FB_NO = #{fb_no} ORDER BY FB_COMMENT_DATE DESC
 	</select>
 	<!-- 댓글 삽입 기능 -->
 	<insert id="insertFBComment" parameterType="fbComment">
@@ -95,11 +104,11 @@
 	</delete>
 	<!-- 게시글 추천 -->
 	<insert id="insertFBoardRecommand" parameterType="map">
-		INSERT INTO FB_RECOMMEND VALUES(#{fb_no},#{id})
+		INSERT INTO FB_RECOMMEND VALUES (#{id},#{fb_no})
 	</insert>
 	<!-- 게시글 추천 취소 -->
 	<delete id="deleteFBoardRecommand" parameterType="map">
-		DELETE FROM FB_RECOMMEND WHERE FB_NO = #{fb_no} and id like #{id}
+		DELETE FROM FB_RECOMMEND WHERE ID LIKE #{id} AND FB_NO = #{fb_no}
 	</delete>
 </mapper>
 

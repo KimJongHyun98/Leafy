@@ -78,6 +78,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -154,7 +155,7 @@
 		width: 1198px;
 		font-size: 35px;
 	}
-	.content {
+	.pb_content {
 		box-sizing: border-box;
 		border: none;
 		resize: none;
@@ -163,7 +164,10 @@
 		font-size: 12px;
 	}
 	.btn_register{
-		font-size: 15px;
+		color: white;
+		display: block;
+		margin: 0px auto;
+		font-size: 20px;
 		text-align: center;
 		background-color: #639578;
 	}
@@ -199,18 +203,32 @@
         <div class="back"></div> <!-- 배경 이미지  -->
 		<form action="photoBoardWrite.do" class="frm_write_PhotoBoard" method="post" enctype="multipart/form-data">
 			<div class="pb_write_container">
- 				<input type="text" name="pb_title" placeholder="제목을 입력해주세요">
+ 				<input class="pb_title" id="pb_title" type="text" name="pb_title" placeholder="제목을 입력해주세요">
 				<hr>
-				<textarea placeholder="게시글을 입력해주세요" class="ckeditor" name="pb_content"></textarea>
+				<textarea class="ckeditor pb_content" id="pb_content" name="pb_content" placeholder="게시글을 입력해주세요"></textarea>
 				<hr>
-				<p>
-					<input type="file" name="file">
-				</p>
+				<p><input type="file" name="file"></p>
 				<p><input type="file" name="file"></p>
 				<p><input type="file" name="file"></p>
 				<p><input type="file" name="file"></p>
 			</div>
+				<p style="color: red; font-size: 10px">* 파일 입력은 최대 4개까지 가능합니다.</p>
 			<button class="btn_register">등록</button>
+			<script>
+				var btnRegisterPB = document.querySelector(".btn_register");
+				btnRegisterPB.onclick = function(){
+					if($('#pb_title').val() == '' || CKEDITOR.instances.pb_content.getData() == ''){
+						alert("제목과 내용을 입력해주세요.");
+						return false;
+					} else {
+						var chk_confirm = confirm("게시글을 등록 하시겠습니까?");
+						if(chk_confirm == false){
+							alert("게시글 등록이 취소되었습니다.");
+							return false;
+						}
+					}
+				}
+			</script>
 		</form>
     </section>
 

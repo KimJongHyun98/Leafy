@@ -7,9 +7,6 @@
 <meta charset="UTF-8">
 <title>포토게시판 상세페이지</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-
-</script>
 <style>
     /* hotpink 색상으로border 잡힌 것은 임시 작업 영역 표시한 것, 추후 삭제 필수  */
     /* 기본 베이스 */
@@ -80,6 +77,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -153,20 +151,53 @@
     	position: relative;
     	box-sizing: border-box;
     }
+
     .pb_comment_list{
-	   	text-align: center;
-	   	box-sizing: border-box;
-    	vertical-align: middle;
+    	display: flex;
+    	justify-content: center;
     }
+    .pb_comment_list > span{
+    	padding: 10px 60px 10px 10px;
+    	font-size: 1.5em;
+    	color: green;
+    }
+    .pb_comment_list > textarea{
+    	resize: none;
+    	width: 900px;
+    	height: 50px;
+    	font-size: 12px;
+    }
+    .pb_comment_list > .btn_pbc_register{
+		font-size: 15px;
+		margin-left: 10px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;
+    }
+    
     .tbl_list_comment{
+    	border-spacing: 10px;
+    	text-align: center;
+    }
+    .tbl_list_comment > td{
     	text-align: center;
     	font-size: 14px;
-    	margin: 20px 0px;
     }
+    
+    .pb_content{
+    	margin-top: 50px;
+    	min-height: 300px;
+    }
+    .btnUpdate, .btnDelete{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;    
+    }    
 </style>
 <script type="text/javascript">
 	$(function(){
-		$(".fb_recommand_count").click(function(e){
+		$(".pb_recommand").click(function(e){
 			e.preventDefault();
 			$.ajax({
 				url : $(this).attr("href"),
@@ -221,11 +252,20 @@
 					<script>
 						var btnUpdate = document.querySelector(".btnUpdate");
 						btnUpdate.onclick = function(){
-							location.href = "photoBoardUpdateView.do?pb_no=${requestScope.pBoard.pb_no}";
+							var chk_confirm = confirm("수정 페이지로 이동하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "photoBoardUpdateView.do?pb_no=${requestScope.pBoard.pb_no}";
+							}
 						}
 						var btnDelete = document.querySelector(".btnDelete");
 						btnDelete.onclick = function(){
-							location.href = "photoBoardDelete.do?pb_no=${requestScope.pBoard.pb_no}";
+							var chk_confirm = confirm("해당 게시글을 삭제하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "photoBoardDelete.do?pb_no=${requestScope.pBoard.pb_no}";
+							} else {
+								alert("게시글 삭제가 취소되었습니다.");
+								return false;
+							}
 						}
 					</script>
 				</c:if>
@@ -250,19 +290,15 @@
 					</div>
 				</c:forEach>
 			</div>
-			<div class="pb_content" style="height: 300px">
+			<div class="pb_content">
 				${requestScope.pBoard.pb_content }
 			</div>
 
-			<p style="font-size: 20px; text-align: center">
-				<!-- 
-					추천수 누르면 추천 올라가는 기능 필요 
-					조회수는 게시글 볼때마다 자동으로 올라가는 기능 필요	
-				-->
-				<a href="photoBoardRecommand.do?pb_no=${requestScope.pBoard.pb_no }" class="pb_recommand_count">
-					<img alt="추천수" src="/resource/img/recommend.png" width="20px" height="20px" name="pb_recommand_count">${requestScope.pBoard.pb_recommand_count }
+			<p style="font-size: 18px; text-align: center">
+				<a href="photoBoardRecommand.do?pb_no=${requestScope.pBoard.pb_no }" class="pb_recommand" style="padding-right: 20px; text-decoration: none; color: green">
+					<img src="/resource/img/recommend.png" width="20px" height="20px" name="pb_recommand_count">${requestScope.pBoard.pb_recommand_count }
 				</a>
-				<img alt="조회수" src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.pBoard.pb_visit_count }
+				<img src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.pBoard.pb_visit_count }
 			</p>
 			<hr>
 			<!-- 파일 링크 출력 -->
@@ -279,13 +315,30 @@
 				<div class="pb_comment_list">	
 					<span>${sessionScope.client.id }</span>
 					<input type="hidden" value="${sessionScope.client.id }" name="commentor_id">
-					<textarea name="pb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
-					<button>등록</button>
+					<textarea id="pb_comment_content" name="pb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
+					<button class="btn_pbc_register">등록</button>
+					<script>
+						var btnRegisterCmt = document.querySelector(".btn_pbc_register");
+						btnRegisterCmt.onclick = function(){
+							if($('#pb_comment_content').val() == ''){
+								alert("댓글을 입력하세요");
+								return false;
+							} else {
+								var chk_confirm = confirm("댓글 등록을 하시겠습니까?");
+								if(chk_confirm == false){
+									alert("댓글 등록이 취소되었습니다.");
+									return false;
+								} else {
+									alert("댓글 등록이 완료되었습니다!");
+								}
+							}
+						}
+					</script>						
 				</div>
 			</div>
 			</form>
 			<!-- 댓글 출력 -->
-			<table class="tbl_list_comment" style="text-align: center">
+			<table class="tbl_list_comment">
 				<tr>
 					<th><input type="hidden"></th>
 					<th width="100px">작성자</th>
@@ -300,7 +353,7 @@
 					<td>
 						${pbc.pb_comment_date } 
 					<c:if test="${pbc.commentor_id == sessionScope.client.id }">
-						<a href = "photoBoardDeleteComment.do?pbc_no=${pbc.pbc_no}&pb_no=${pbc.pb_no}">삭제</a>
+						<a href = "photoBoardDeleteComment.do?pbc_no=${pbc.pbc_no}&pb_no=${pbc.pb_no}" style="text-decoration: none; color: red; font-size: 12px">삭제</a>
 					</c:if>
 					</td>
 				</tr>

@@ -76,6 +76,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -125,7 +126,6 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
-
     }
     .footer_text_box p {
         margin: 0px 15px;
@@ -134,6 +134,7 @@
     }
     .pb_list{
     	width: 1200px;
+    	margin: 50px 0px;
     }
     .pb_list_flex_container{
     	margin: 0px auto;
@@ -153,16 +154,36 @@
     }
     .most_view_list{
     	width: 1200px;
+    	margin-top: 50px;
     }
     .mvpb_list_flex_container{
     	margin: 0px auto;
     	display: flex;
     	width: 960px;
+    	overflow: hidden;
     	box-sizing: border-box;
     }
     .mvpb_item{
 		margin: 20px 20px;    
     }
+    .pb_paging{
+    	margin-top: 50px;
+    }
+	.btn_pb_write{
+		font-size: 15px;
+		text-decoration: none;
+		width: 10px;
+		height: 10px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;
+	}
+	.btn_pb_search{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;	
+	}
 </style>
 </head>
 <body>
@@ -194,17 +215,18 @@
         <div class="back"></div> <!-- 배경 이미지  -->
 		<!-- 상단 가장 조회수 많은 게시글 슬라이드 처리 -->        
         <div class="most_view_list">
+        	<h2 style="width: 960px; margin: 0px auto">이 달의 식물</h2>
 	        <div class="mvpb_list_flex_container">
 	        <c:forEach var="mvpb" items="${requestScope.mvpbList}">
 	        	<div class="mvpb_item" style="width: 200px; height: 300px">
 		        	<a href="photoBoardView.do?pb_no=${mvpb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
 		        		no : ${mvpb.pb_no }<br>
-		        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
+		        		<img src="photoBoardFileDownload.do?pb_fno=${mvpb.pb_thumbnail_fno }" width="200px" height="200px"><br>
 		        		${mvpb.creator_id }<br>
 		        		${mvpb.pb_title }<br>
-		        		<span style="margin-left: 165px"> 
-		        		${mvpb.pb_recommand_count}
-		        		${mvpb.pb_visit_count}
+		        		<span style="margin-left: 130px">
+		        		<img src="/resource/img/recommend.png" width="12px" height="12px" name="pb_recommand_count">${mvpb.pb_recommand_count}
+		        		<img src="/resource/img/view.png" width="12px" height="12px" name="pb_visit_count">${mvpb.pb_visit_count}
 		        		</span>
 		        	</a>
 	        	</div>
@@ -220,23 +242,18 @@
         	<div class="pb_item" style="width: 200px; height: 300px">
 	        	<a href="photoBoardView.do?pb_no=${pb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
 	        		no : ${pb.pb_no }<br>
-<!-- 
-	        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
- -->
-         		<c:if test="${requestScope.thumbnail.pb_fno != null }">
-	        		<img src="photoBoardFileDownload.do?pb_fno=${requestScope.thumbnail.pb_fno }" width="200px" height="200px"><br>
+         		<c:if test="${pb.pb_thumbnail_fno != null }">
+	        		<img src="photoBoardFileDownload.do?pb_fno=${pb.pb_thumbnail_fno }" width="200px" height="200px"><br>
         		</c:if>
-        		<c:if test="${requestScope.thumbnail.pb_fno == null }">
+        		<c:if test="${pb.pb_thumbnail_fno == null }">
 	        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
         		</c:if>
-
 	        		${pb.creator_id }<br>
 	        		${pb.pb_title }<br>
-	        		<span style="margin-left: 165px">
-	        		${pb.pb_recommand_count}
-	        		${pb.pb_visit_count}
+	        		<span style="margin-left: 130px">
+	        		<img src="/resource/img/recommend.png" width="12px" height="12px" name="pb_recommand_count">${pb.pb_recommand_count}
+	        		<img src="/resource/img/view.png" width="12px" height="12px" name="pb_visit_count">${pb.pb_visit_count}
 	        		</span>
-	        		
 	        	</a>
         	</div>
         </c:forEach>
@@ -277,7 +294,9 @@
 				</select>
 				<input type="text" name="search" placeholder="검색어 입력">
 				<button class="btn_pb_search">검색</button>
+			<c:if test="${sessionScope.client.id != null }">
 				<a href="photoBoardWriteView.do" class="btn_pb_write">글쓰기</a>
+			</c:if>	
 			</form>
 		</div>
         
