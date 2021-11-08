@@ -98,8 +98,19 @@ public class PBoardService { // 포토게시판 서비스
 		pbMapper.deletePBoard(pb_no);
 	}
 
-//	public PBFileDTO selectPBThumbnail(int pb_fno) {
-//		return pbMapper.selectPBThumbnail(pb_fno);
-//	}
+	public boolean insertPBoardRecommand(String id, int pb_no) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("id", id);
+		map.put("pb_no", pb_no);
+		int count = 0;
+		try {
+			count = pbMapper.insertPBoardRecommand(map);
+		} catch (Exception e) {
+			System.out.println("게시글 추천을 이미 하였습니다.");
+		}
+		if(count==0)
+			pbMapper.deletePBoardRecommand(map);
+		return count==1;
+	}
 
 }

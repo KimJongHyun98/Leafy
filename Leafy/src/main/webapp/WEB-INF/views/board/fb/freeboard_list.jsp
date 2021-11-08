@@ -74,6 +74,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
+        min-height: 672px;
     }
 
     .back {
@@ -94,7 +95,7 @@
 	
 	th,td{
 		text-align: center;
-		border-bottom: 1px solid;
+		border-bottom: 1px solid gray;
 		padding: 15px 0px;
 	}
 	
@@ -115,6 +116,7 @@
 	}
 	.btn_fb_write{
 		font-size: 15px;
+		text-decoration: none;
 		width: 10px;
 		height: 10px;
 		border: 1px solid black;
@@ -261,7 +263,9 @@
 				</select>
 				<input type="text" name="search" placeholder="검색어 입력">
 				<button class="btn_fb_search">검색</button>
+			<c:if test="${sessionScope.client.id != null }">
 				<a href="freeBoardWriteView.do" class="btn_fb_write">글쓰기</a>
+			</c:if>
 			</form>
 		</div>
     </section>

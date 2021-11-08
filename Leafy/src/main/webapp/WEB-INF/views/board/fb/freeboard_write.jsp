@@ -73,7 +73,7 @@
     section {
         margin: 0 auto;
         width: 1200px;
-        height: 1200px;
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -117,7 +117,18 @@
 		height: 1000px;
 		font-size: 12px;
 	}
+<<<<<<< HEAD
 	
+=======
+	.btn_register{
+		color: white;
+		display: block;
+		margin: 0px auto;
+		font-size: 20px;
+		text-align: center;
+		background-color: #639578;
+	}
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     /* 푸터 */
     footer {
         display: flex;
@@ -162,6 +173,12 @@
         margin-bottom: 10px;
     }
 </style>
+<<<<<<< HEAD
+=======
+<script>
+
+</script>
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
 </head>
 <body>
 	<header>
@@ -195,10 +212,40 @@
 				<button type="button">등록</button>
 			</div>
 			<div class="fb_write_container">
+<<<<<<< HEAD
 				<input type="text" name="title" placeholder="제목을 입력해주세요">
 				<hr>
 				<textarea placeholder="게시글을 입력해주세요" class="ckeditor content" name="fb_content"></textarea>
 			</div>
+=======
+ 				<input type="text" id="fb_title" name="fb_title" placeholder="제목을 입력해주세요">
+				<hr>
+				<textarea class="ckeditor fb_content" id="fb_content" name="fb_content" placeholder="게시글을 입력해주세요"></textarea>
+				<hr>
+				<p><input type="file" name="file"></p>
+				<p><input type="file" name="file"></p>
+				<p><input type="file" name="file"></p>
+				<p><input type="file" name="file"></p>
+			</div>
+				<p style="color: red; font-size: 10px">* 파일 입력은 최대 4개까지 가능합니다.</p>
+				<br>
+			<button class="btn_register">등록</button>
+			<script>
+				var btnRegisterFB = document.querySelector(".btn_register");
+				btnRegisterFB.onclick = function(){
+					if($('#fb_title').val() == '' || CKEDITOR.instances.fb_content.getData() == ''){
+						alert("제목과 내용을 입력해주세요.");
+						return false;
+					} else {
+						var chk_confirm = confirm("게시글을 등록 하시겠습니까?");
+						if(chk_confirm == false){
+							alert("게시글 등록이 취소되었습니다.");
+							return false;
+						}
+					}
+				}
+			</script>				
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
 		</form>
     </section>
 

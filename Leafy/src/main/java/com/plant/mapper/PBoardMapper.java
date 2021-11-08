@@ -25,6 +25,12 @@ public interface PBoardMapper {
 //	int insertFileInfo(PBFileDTO pbFileDTO);
 	int updatePBoard(HashMap<String, Object> map);
 	int deletePBoard(int pb_no);
+<<<<<<< HEAD
 //	PBFileDTO selectFile(int pb_fno);
 //	PBFileDTO selectPBThumbnail(int pb_fno);
+=======
+	PBFileDTO selectFile(int pb_fno);
+	int insertPBoardRecommand(HashMap<String, Object> map);
+	int deletePBoardRecommand(HashMap<String, Object> map);
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
 }

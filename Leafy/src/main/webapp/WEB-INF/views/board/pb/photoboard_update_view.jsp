@@ -78,12 +78,9 @@
 
     /* 섹션 */
     section {
-        margin: 0 auto;
+	    margin: 50px auto 0px auto;
         width: 1200px;
-        
-        /* 임시 */
-        height: 2000px;
-        
+        min-height: 672px;
     }
 
     /* 배경 이미지 */
@@ -140,6 +137,14 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
+    .btnUpdate, .btnCancel{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;    
+	    position: relative;
+    	left : 94%;
+    }
 </style>
 </head>
 <body>
@@ -169,6 +174,38 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
+<<<<<<< HEAD
+=======
+		<!-- 본문 작업 부분 -->
+		<div class="pb_view_container">
+			<form action="photoBoardUpdate.do" method="post">
+				<input id="pb_title" type="text" name="pb_title" style="font-size: 30px;font-weight: bold" value="${requestScope.pbdto.pb_title }">
+				<p style="font-size: 10px">${requestScope.pbdto.pb_create_date }</p>
+				<hr>
+				<textarea id="pb_content" name="pb_content" style="resize: none; width: 1200px; height: 500px">${requestScope.pbdto.pb_content }</textarea>
+				<button class="btnUpdate">수정</button>
+				<script>
+					var btnUpdate = document.querySelector(".btnUpdate");
+					btnUpdate.onclick = function(){
+						if($('#pb_title').val() == '' || CKEDITOR.instances.pb_content.getData() == ''){
+							alert("제목과 내용을 입력해주세요.");
+							return false
+						} else {
+							var chk_confirm = confirm("게시글 수정을 완료하시겠습니까?");
+							if(chk_confirm == false){
+								alert("게시글 수정이 취소되었습니다.");
+								return false;
+							} else {
+								alert("게시글 수정이 완료되었습니다!");
+							}
+						}
+					}
+				</script>					
+				<button type="button" class="btnCancel" onclick="history.back();">취소</button>
+				<input type="hidden" name="pb_no" value="${requestScope.pbdto.pb_no }">
+			</form>
+		</div>
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     </section>
 
     <footer>

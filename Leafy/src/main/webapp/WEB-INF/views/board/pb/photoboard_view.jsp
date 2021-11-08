@@ -7,9 +7,6 @@
 <meta charset="UTF-8">
 <title>포토게시판 상세페이지</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-
-</script>
 <style>
     /* hotpink 색상으로border 잡힌 것은 임시 작업 영역 표시한 것, 추후 삭제 필수  */
     /* 기본 베이스 */
@@ -80,10 +77,14 @@
     section {
         margin: 0 auto;
         width: 1200px;
+<<<<<<< HEAD
         
         /* 임시 */
         height: 2000px;
         
+=======
+        min-height: 672px;
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     }
 
     /* 배경 이미지 */
@@ -140,7 +141,90 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
+<<<<<<< HEAD
 </style>
+=======
+    .pb_img_content{
+       	margin: 0px auto;
+    	display: flex;
+    	width: 960px;
+    	box-sizing: border-box;
+    	flex-flow: wrap;
+    }
+    .pb_img_item{
+    	margin: 20px 20px;
+    }
+    .pb_insert_comment{
+    	margin-bottom: 10px;
+    	display: flex;
+    	flex-direction: column;
+    	position: relative;
+    	box-sizing: border-box;
+    }
+
+    .pb_comment_list{
+    	display: flex;
+    	justify-content: center;
+    }
+    .pb_comment_list > span{
+    	padding: 10px 60px 10px 10px;
+    	font-size: 1.5em;
+    	color: green;
+    }
+    .pb_comment_list > textarea{
+    	resize: none;
+    	width: 900px;
+    	height: 50px;
+    	font-size: 12px;
+    }
+    .pb_comment_list > .btn_pbc_register{
+		font-size: 15px;
+		margin-left: 10px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;
+    }
+    
+    .tbl_list_comment{
+    	border-spacing: 10px;
+    	text-align: center;
+    }
+    .tbl_list_comment > td{
+    	text-align: center;
+    	font-size: 14px;
+    }
+    
+    .pb_content{
+    	margin-top: 50px;
+    	min-height: 300px;
+    }
+    .btnUpdate, .btnDelete{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;    
+    }    
+</style>
+<script type="text/javascript">
+	$(function(){
+		$(".pb_recommand").click(function(e){
+			e.preventDefault();
+			$.ajax({
+				url : $(this).attr("href"),
+				type : "get",
+				dataType : "json",
+				success:function(r){
+					alert(r.msg);
+					if(r.code == 400)
+						location.href="/";
+					else
+						location.reload();
+				}
+			});
+		});
+	});
+</script>
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
 </head>
 
 <body>
@@ -169,6 +253,129 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
+<<<<<<< HEAD
+=======
+		<!-- 본문 작업 부분 -->
+		<div class="pb_view_container">
+			<a href="javascript:location.href='photoBoardList.do'" style="font-size: 12px; text-decoration: none; color: red">포토게시판 목록</a><br>
+			<input type="hidden" value="${requestScope.pBoard.pb_no }" name="pb_no">
+			<p style="font-size: 30px;font-weight: bold">${requestScope.pBoard.pb_title }
+				<c:if test="${requestScope.pBoard.creator_id == sessionScope.client.id }">
+					<button type="button" class="btnUpdate">수정</button>
+					<button type="button" class="btnDelete">삭제</button>
+					<script>
+						var btnUpdate = document.querySelector(".btnUpdate");
+						btnUpdate.onclick = function(){
+							var chk_confirm = confirm("수정 페이지로 이동하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "photoBoardUpdateView.do?pb_no=${requestScope.pBoard.pb_no}";
+							}
+						}
+						var btnDelete = document.querySelector(".btnDelete");
+						btnDelete.onclick = function(){
+							var chk_confirm = confirm("해당 게시글을 삭제하시겠습니까?");
+							if(chk_confirm == true){
+								location.href = "photoBoardDelete.do?pb_no=${requestScope.pBoard.pb_no}";
+							} else {
+								alert("게시글 삭제가 취소되었습니다.");
+								return false;
+							}
+						}
+					</script>
+				</c:if>
+			</p>
+			
+			<!-- 아이디 옆 메세지 버튼 눌리면 게시글 작성자에 메세지 보낼 수 있는 기능 필요 -->
+			<form action="sendMessage.do">
+				<p style="font-size: 15px">
+					${requestScope.pBoard.creator_id }
+					<c:if test="${requestScope.pBoard.creator_id != sessionScope.client.id }">
+						<button type="button">메세지</button>
+					</c:if> 
+				</p>
+			</form>
+			<p style="font-size: 10px">${requestScope.pBoard.pb_create_date }</p>
+			<hr>
+			<!-- 이미지 파일 출력 -->
+			<div class="pb_img_content">
+				<c:forEach items="${requestScope.flist }" var="img">
+					<div class="pb_img_item">
+						<img src="photoBoardFileDownload.do?pb_fno=${img.pb_fno }" width="200px" height="200px">
+					</div>
+				</c:forEach>
+			</div>
+			<div class="pb_content">
+				${requestScope.pBoard.pb_content }
+			</div>
+
+			<p style="font-size: 18px; text-align: center">
+				<a href="photoBoardRecommand.do?pb_no=${requestScope.pBoard.pb_no }" class="pb_recommand" style="padding-right: 20px; text-decoration: none; color: green">
+					<img src="/resource/img/recommend.png" width="20px" height="20px" name="pb_recommand_count">${requestScope.pBoard.pb_recommand_count }
+				</a>
+				<img src="/resource/img/view.png" width="20px" height="20px"> ${requestScope.pBoard.pb_visit_count }
+			</p>
+			<hr>
+			<!-- 파일 링크 출력 -->
+			<p style="font-size: 12px; font-weight: bold; margin-top: 5px">첨부파일 목록</p>
+			<c:forEach var="f" items="${requestScope.flist }">
+				<p style="font-size: 12px; margin: 5px 0px">첨부파일 : <a href="photoBoardFileDownload.do?pb_fno=${f.pb_fno }" style="font-size: 12px">${f.originalFileName}</a></p>
+			</c:forEach>
+			<hr>
+			<!-- 댓글 입력 -->
+			<p style="font-size: 12px; font-weight: bold; margin: 5px 0px">댓글</p>
+			<form action="photoBoardInsertComment.do">
+			<div class="pb_insert_comment">
+				<input type="hidden" value="${requestScope.pBoard.pb_no }" name="pb_no">
+				<div class="pb_comment_list">	
+					<span>${sessionScope.client.id }</span>
+					<input type="hidden" value="${sessionScope.client.id }" name="commentor_id">
+					<textarea id="pb_comment_content" name="pb_comment_content" style="resize:none; width: 900px; height: 50px" placeholder="댓글을 입력해주세요"></textarea>
+					<button class="btn_pbc_register">등록</button>
+					<script>
+						var btnRegisterCmt = document.querySelector(".btn_pbc_register");
+						btnRegisterCmt.onclick = function(){
+							if($('#pb_comment_content').val() == ''){
+								alert("댓글을 입력하세요");
+								return false;
+							} else {
+								var chk_confirm = confirm("댓글 등록을 하시겠습니까?");
+								if(chk_confirm == false){
+									alert("댓글 등록이 취소되었습니다.");
+									return false;
+								} else {
+									alert("댓글 등록이 완료되었습니다!");
+								}
+							}
+						}
+					</script>						
+				</div>
+			</div>
+			</form>
+			<!-- 댓글 출력 -->
+			<table class="tbl_list_comment">
+				<tr>
+					<th><input type="hidden"></th>
+					<th width="100px">작성자</th>
+					<th width="800px">내용</th>
+					<th width="300px">작성일</th>
+				</tr>
+			<c:forEach var="pbc" items="${requestScope.pbclist }">
+				<tr>
+					<td><input type="hidden" name="pbc_no" value="${pbc.pbc_no}"></td>
+					<td>${pbc.commentor_id } </td>
+					<td>${pbc.pb_comment_content } </td>
+					<td>
+						${pbc.pb_comment_date } 
+					<c:if test="${pbc.commentor_id == sessionScope.client.id }">
+						<a href = "photoBoardDeleteComment.do?pbc_no=${pbc.pbc_no}&pb_no=${pbc.pb_no}" style="text-decoration: none; color: red; font-size: 12px">삭제</a>
+					</c:if>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+		</div>        
+        
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     </section>
 
     <footer>

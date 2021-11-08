@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html>
@@ -137,6 +138,104 @@
         margin-top: 20px;
         margin-bottom: 10px;
     }
+    img{
+    	width: 40px;
+    	height: 40px;
+    	border: 0px;
+    	border-radius: 50%;
+    }
+    p{
+    	font-family: 'Noto Sans KR', sans-serif;
+    	font-size: 20px;
+    }
+    .badge{
+    	margin-left: 15px;
+    }
+    
+    .msg-container{
+    max-width: 1170px; margin: auto;
+    }
+    .inbox_people{
+    	background: #f8f8f8 none repeat scroll 0 0;
+    	float: left;
+    	overflow: hidden;
+    	width: 40%; border-right: 1px solid #f7f7f7;
+    }
+    .inbox_msg {
+    	border: 1px solid #f7f7f7;
+    	border-radius:15px;
+    	clear: both;
+    	overflow: hidden;
+    }
+    .top_spac{margin: 20px 0 0;}
+    .recent_heading{float: left; width:40%;}
+    .srch_bar{
+    display: inline-block;
+    text-align: right;
+    width: 60%; padding:
+    }
+    .heading_srch{padding:10px 29px 10px 20px; overflow:hidden; border-bottom: 1px solid #f7f7f7;}
+    .recent_heading h4 {
+    	color: #5fcf80;
+    	font-size: 30px;
+    	margin: auto;
+    	font-family: 'Nanum Pen Script', cursive;
+    }
+    .srch_bar input{border: 1px solid #cdcdcd; border-width: 0 0 1px 0; width: 80%; padding: 2px 0 4px 6px; background: none; font-family: 'Nanum Pen Script', cursive; font-size: 25px;}
+    .srch_bar .input-group_addon button{
+    	background: rgba(0,0,0,0) none repeat scroll 0 0;
+    	border: medium none;
+    	padding: 0;
+    	color: #707070;
+    	font-size: 18px;
+    }
+    .srch_bar .input-group-addon{margin: 0 0 0 -27px;}
+    
+    .chat_ib h5{font-size: 20px; color: #464646; margin: 0 0 8px 0; font-family: 'Nanum Pen Script', cursive;}
+    .chat_ib h5 span{ font-size: 17px; float: right;}
+    .chat_ib p{font-size: 14px; color: #989898; margin:auto}
+    .chat_img{
+    float: left;
+    width: 11%
+    }
+    
+    .chat_ib{
+    	float: left;
+    	padding: 0 0 0 15px;
+    	width: 88%;
+    }
+    
+    .chat_people{overflow: hidden; clear: both;}
+    .chat_list{
+    	border-bottom: 1px solid #f7f7f7;
+    	margin: 0;
+    	padding: 18px 16px 10px;
+    }
+    
+    .chat_list_box :hover {
+	background-color: #d6ead0;
+	}
+	
+	.inbox_chat{
+		height: 550px;
+		overflow-y: scroll;
+	}
+	.active_chat{
+		background: #ebebeb;
+	}
+	.inbox_chat{height: 550px; overflow-y: scroll;}
+	.active_chat{background: #ebebeb;}
+	.incoming_msg_img{
+		display: inline-blick;
+		width: 6%;
+	}
+	.received_msg{
+	display: inline-block;
+	padding: 0 0 0 10px;
+	vertical-align: top;
+	width: 92%
+	}
+	
 </style>
 </head>
 
@@ -205,6 +304,192 @@
         		</div>
         	</div>
       	</div>
+      	<script>
+      	// 처음 메세지 리스트를 가져온다.
+      	const FirstMessageList = function(){
+      		$.ajax({
+      			url:"message_ajax_list.do",
+      			method:"get",
+      			data:{
+      			},
+      			success:function(data){
+      				console.log("메세지 리스트 리로드 성공");
+      				
+      				$('.inbac_chat').html(data);
+      				
+      				//메세지 리스트중 하나를 클릭했을때
+      				$('.chat_list').on('click', function(){
+      					
+      					let room = $(this).attr('room');
+      					let other_nick = $(this).attr('other-nick');
+      					
+      					//선택한 메세지 빼고 나머지는 active 효과 해제하기
+      					$('.chat_list_box').not('.chat_list_box.chat_list_box' + room).removeClass('active_chat');
+      					//선택한 메세지만 active 효과 주기
+      					$('chat_list_box' + room).addClass('active_chat');
+      					
+      					let send_msg = "";
+      					send_msg += "<div class = 'type_msg'>";
+      					send_msg += "	<div class = 'input_msg_write row'>";
+      					send_msg += "		<div class='col-11'";
+      					send_msg += "			<input type='text' class='write_msg form-control' placeholder='메세지를 입력...' />	";
+      					send_msg += "		</div>";
+      					send_msg += "		<div class='col-1'>";
+      					send_msg += "			<button class='msg_send_btn' type='button><i class='fa fa-paper-plane-o' aria-hidden='true'></i></button>";
+      					send_msg += "		</div>";
+      					send_msg += "	</div>";
+      					send_msg += "</div>";
+      					
+      					//메세지 입력, 전송 칸을 보인다.
+      					$('.send_message').html(send_msg);
+      					
+      					//메세지 전송 버튼을 눌렀을 때
+      					$('.msg_send_btn').on('click', function(){
+      						
+      						//메세지 전송 함수 호출
+      						SendMessage(room, other_nick);
+      						
+      						//전송 버튼을 누르면 메세지 리스트가 리로드 되면서 현재 열린 메세지의 선택됨 표시가 사라진다.
+      						// 이걸 해결하기 위해 메세지 전송 버튼을 누르고 메세지 리스트가 리로드 되면 메세지 리스트의 첫번째 메세지(현재 열린 메세지)가 선택됨 표시 되도록 한다.
+      						//$('.chat_list_box:first').addClass('active_chat');
+      					});
+      					
+      					//메세지 내용을 불러오는 함수 호출
+      					MessageContentList(room);
+      					
+      				});
+      			}
+      		});
+      	};
+      	
+      	//메세지 리스트를 다시 가져온다.
+      	const MessageList = function(){
+      		$.ajax({
+      			url:"message_ajax_list.do",
+      			method:"get",
+      			data:{
+      			},
+      			success:function(data){
+      				console.log("메세지 리스트 리로드 성공");
+      				
+      				$('.inbox_chat').html(data)
+      				
+      				// 메세지 리스트중 하나를 클릭했을 때
+      				$('.chat_list').on('click', function(){
+      					let room = $(this).attr('room');
+      					let other_nick = $(this).attr('other-nick');
+      					
+      					//선택한 메세지 빼고 나머지는 active 효과 해제하기
+      					$('.chat_list_box').not('.chat_list_box.chat_list_box' + room).removeClass('active_chat');
+      					//선택한 메세지만 active 효과 주기
+      					$('chat_list_box' + room).addClass('active_chat');
+      					
+      					let send_msg = "";
+      					send_msg += "<div class = 'type_msg'>";
+      					send_msg += "	<div class = 'input_msg_write row'>";
+      					send_msg += "		<div class='col-11'";
+      					send_msg += "			<input type='text' class='write_msg form-control' placeholder='메세지를 입력...' />	";
+      					send_msg += "		</div>";
+      					send_msg += "		<div class='col-1'>";
+      					send_msg += "			<button class='msg_send_btn' type='button><i class='fa fa-paper-plane-o' aria-hidden='true'></i></button>";
+      					send_msg += "		</div>";
+      					send_msg += "	</div>";
+      					send_msg += "</div>";
+      					
+      					//메세지 입력, 전송 칸을 보인다.
+      					$('.send_message').html(send_msg);
+      					
+      					//메세지 전송 버튼을 눌렀을 때
+      					$('.msg_send_btn').on('click', function(){
+      						
+      						//메세지 전송 함수 호출
+      						SendMessage(room, other_nick);
+      						
+      						//전송 버튼을 누르면 메세지 리스트가 리로드 되면서 현재 열린 메세지의 선택됨 표시가 사라진다.
+      						// 이걸 해결하기 위해 메세지 전송 버튼을 누르고 메세지 리스트가 리로드 되면 메세지 리스트의 첫번째 메세지(현재 열린 메세지)가 선택됨 표시 되도록 한다.
+      						//$('.chat_list_box:first').addClass('active_chat');
+      					});
+      					
+      					//메세지 내용을 불러오는 함수 호출
+      					MessageContentList(room);
+      				});
+      				//전송 버튼을 누르면 메세지 리스트가 리로드 되면서 현재 열린 메세지의 선택됨 표시가 사라진다.
+					// 이걸 해결하기 위해 메세지 전송 버튼을 누르고 메세지 리스트가 리로드 되면 메세지 리스트의 첫번째 메세지(현재 열린 메세지)가 선택됨 표시 되도록 한다.
+					$('.chat_list_box:first').addClass('active_chat');
+      			}
+      		});
+      	};
+      	
+      	// 메세지 내용을 가져온다.
+      	// 읽지 않은 메세지들을 읽음으로 바꾼다.
+      	const MessageContentList = function(room){
+      		
+      		$.ajax({
+      			url:"message_content_list.do",
+      			method:"get",
+      			data:{
+      				room : room,
+      			},
+      			success:function(data){
+      				console.log("메세지 내용 가져오기 성공");
+      				
+      				//메세지 내용을 html에 넣는다
+      				$('.msg_history').html(data);
+      				
+      				//이 함수로 메세지 내용을 가져올때마다 스크롤을 맨아래로 가게 한다.
+      				$(".msg_history").scrollTop($(".msg_history")[0].scrollHeight);
+      			},
+      			error : function(){
+      				alert('서버 에러');
+      			}
+      		});
+      		
+      		$('.unread'+room).empty();
+      	};
+      	
+      	//메세지를 전송하는 함수
+      	const SendMessage = function(room, other_nick){
+      		
+      		let content = $('.write_msg').val();
+      		
+      		content = content.trim();
+      		
+      		if(content == ""){
+      			alert("메세지를 입력하세요!");
+      		}else{
+      			$.ajax({
+      				url:"message_send_inlist.do",
+      				method:"get",
+      				data:{
+      					room : room,
+      					other_nick: other_nick,
+      					content : content
+      				},
+      				success:function(data){
+      					console.log("메세지 전송 성공");
+      					
+      					//메세지 입력칸 비우기
+      					$('.write_msg').val("");
+      					
+      					//메세지 내용 리로드
+      					MessageContentList(room);
+      					
+      					//메세지 리스트 리로드
+      					MessageList();
+      					
+      				},
+      				error : function(){
+      					alert('서버 에러');
+      				}
+      			});
+      		}
+      	};
+      	
+      	$(document).ready(function(){
+      		// 메세지 리스트 리로드
+      		FirstMessageList();
+      	});
+      	</script>
     </section>
 
     <footer>

@@ -59,7 +59,7 @@ public class FBoardService { // 자유게시판 서비스
 		fbMapper.addFBoardCount(fb_no);
 	}
 
-	public boolean insertFBoardRecommand(int fb_no, String id) {
+	public boolean insertFBoardRecommand(String id, int fb_no) {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("id", id);
 		map.put("fb_no", fb_no);

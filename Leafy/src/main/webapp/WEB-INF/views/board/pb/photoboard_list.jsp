@@ -80,10 +80,14 @@
     section {
         margin: 0 auto;
         width: 1200px;
+<<<<<<< HEAD
         
         /* 임시 */
         height: 2000px;
         
+=======
+        min-height: 672px;
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     }
 
     /* 배경 이미지 */
@@ -133,13 +137,67 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
-
     }
     .footer_text_box p {
         margin: 0px 15px;
         margin-top: 20px;
         margin-bottom: 10px;
     }
+<<<<<<< HEAD
+=======
+    .pb_list{
+    	width: 1200px;
+    	margin: 50px 0px;
+    }
+    .pb_list_flex_container{
+    	margin: 0px auto;
+    	display: flex;
+    	width: 960px;
+    	box-sizing: border-box;
+    	flex-flow: wrap;
+    }
+    .pb_item{
+    	margin: 0px 20px;
+    }
+    .pb_paging{
+    	text-align: center;
+    }
+    .form_container{
+    	text-align: center;
+    }
+    .most_view_list{
+    	width: 1200px;
+    	margin-top: 50px;
+    }
+    .mvpb_list_flex_container{
+    	margin: 0px auto;
+    	display: flex;
+    	width: 960px;
+    	overflow: hidden;
+    	box-sizing: border-box;
+    }
+    .mvpb_item{
+		margin: 20px 20px;    
+    }
+    .pb_paging{
+    	margin-top: 50px;
+    }
+	.btn_pb_write{
+		font-size: 15px;
+		text-decoration: none;
+		width: 10px;
+		height: 10px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;
+	}
+	.btn_pb_search{
+		font-size: 15px;
+		border: 1px solid black;
+		background-color: #639578;
+		color: white;	
+	}
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
 </style>
 </head>
 <body>
@@ -169,6 +227,96 @@
 
     <section>
         <div class="back"></div> <!-- 배경 이미지  -->
+<<<<<<< HEAD
+=======
+		<!-- 상단 가장 조회수 많은 게시글 슬라이드 처리 -->        
+        <div class="most_view_list">
+        	<h2 style="width: 960px; margin: 0px auto">이 달의 식물</h2>
+	        <div class="mvpb_list_flex_container">
+	        <c:forEach var="mvpb" items="${requestScope.mvpbList}">
+	        	<div class="mvpb_item" style="width: 200px; height: 300px">
+		        	<a href="photoBoardView.do?pb_no=${mvpb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
+		        		no : ${mvpb.pb_no }<br>
+		        		<img src="photoBoardFileDownload.do?pb_fno=${mvpb.pb_thumbnail_fno }" width="200px" height="200px"><br>
+		        		${mvpb.creator_id }<br>
+		        		${mvpb.pb_title }<br>
+		        		<span style="margin-left: 130px">
+		        		<img src="/resource/img/recommend.png" width="12px" height="12px" name="pb_recommand_count">${mvpb.pb_recommand_count}
+		        		<img src="/resource/img/view.png" width="12px" height="12px" name="pb_visit_count">${mvpb.pb_visit_count}
+		        		</span>
+		        	</a>
+	        	</div>
+	        </c:forEach>
+	        </div>
+        </div>
+        <hr>
+        
+        <!-- 포토 게시판 전체 출력 -->
+        <div class="pb_list">
+        <div class="pb_list_flex_container">
+        <c:forEach var="pb" items="${requestScope.pbList}">
+        	<div class="pb_item" style="width: 200px; height: 300px">
+	        	<a href="photoBoardView.do?pb_no=${pb.pb_no }" style="text-decoration: none; color: black; font-size: 12px">
+	        		no : ${pb.pb_no }<br>
+         		<c:if test="${pb.pb_thumbnail_fno != null }">
+	        		<img src="photoBoardFileDownload.do?pb_fno=${pb.pb_thumbnail_fno }" width="200px" height="200px"><br>
+        		</c:if>
+        		<c:if test="${pb.pb_thumbnail_fno == null }">
+	        		<img src="/resource/img/plant1.jpg" width="200px" height="200px"><br>
+        		</c:if>
+	        		${pb.creator_id }<br>
+	        		${pb.pb_title }<br>
+	        		<span style="margin-left: 130px">
+	        		<img src="/resource/img/recommend.png" width="12px" height="12px" name="pb_recommand_count">${pb.pb_recommand_count}
+	        		<img src="/resource/img/view.png" width="12px" height="12px" name="pb_visit_count">${pb.pb_visit_count}
+	        		</span>
+	        	</a>
+        	</div>
+        </c:forEach>
+        </div>
+        </div>
+        
+        <!-- 페이징 -->
+        <div class="pb_paging">
+			<c:if test="${requestScope.pagging.previousPageGroup }">
+				<a href="photoBoardList.do?pageNo=${requestScope.pagging.startPageOfPageGroup-1 }"><<</a>				
+			</c:if>
+			<c:forEach var="i" begin="${requestScope.pagging.startPageOfPageGroup }" end="${requestScope.pagging.endPageOfPageGroup }">
+				<c:choose>
+					<c:when test="${i == requestScope.pagging.currentPageNo }">
+						${i }
+					</c:when>
+					<c:otherwise>
+						<c:if test="${requestScope.count == null }">
+							<a href="photoBoardList.do?pageNo=${i }">${i }</a>
+						</c:if>
+						<c:if test="${requestScope.count != null }">
+							<a href="photoBoardSearch.do?pageNo=${i }&kind=${requestScope.kind }&search=${requestScope.search}">${i }</a>
+						</c:if>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<c:if test="${requestScope.pagging.nextPageGroup }">
+				<a href="photoBoardList.do?pageNo=${requestScope.pagging.endPageOfPageGroup+1 }">>></a>				
+			</c:if>
+        </div>
+        <!-- 검색 기능 -->
+		<div class="form_container">
+			<form class="frm_search_PhotoBoard" action="photoBoardSearch.do">
+				<select name="kind">
+					<option value="title">제목</option>
+					<option value="title_content">제목+내용</option>
+					<option value="creator_id">작성자</option>
+				</select>
+				<input type="text" name="search" placeholder="검색어 입력">
+				<button class="btn_pb_search">검색</button>
+			<c:if test="${sessionScope.client.id != null }">
+				<a href="photoBoardWriteView.do" class="btn_pb_write">글쓰기</a>
+			</c:if>	
+			</form>
+		</div>
+        
+>>>>>>> e0341cde40e4491d6bd30cdd20ed1e1696e78b9a
     </section>
 
     <footer>
